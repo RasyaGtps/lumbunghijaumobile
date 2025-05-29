@@ -1,46 +1,40 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, TextInput } from 'react-native';
-import { styled } from 'nativewind';
-
-const StyledView = styled(View);
-const StyledText = styled(Text);
-const StyledImage = styled(Image);
-const StyledInput = styled(TextInput);
+import { Image, ScrollView, Text, TextInput, View } from 'react-native';
 
 export default function HomeScreen() {
   return (
     <ScrollView className="flex-1 bg-white p-4">
       {/* Header */}
-      <StyledView className="flex-row justify-between items-center mb-4">
-        <StyledText className="text-sm text-gray-500">Selamat datang,</StyledText>
-        <StyledImage
+      <View className="flex-row justify-between items-center mb-4">
+        <Text className="text-sm text-gray-500">Selamat datang,</Text>
+        <Image
           className="w-8 h-8 rounded-full border"
-          source={{ uri: 'https://via.placeholder.com/32' }}
+          source={{ uri: 'placeholder' }}
         />
-      </StyledView>
+      </View>
 
-      <StyledText className="text-lg font-bold -mt-2 mb-4">User!</StyledText>
+      <Text className="text-lg font-bold -mt-2 mb-4">User!</Text>
 
       {/* Card Poin */}
-      <StyledView className="border rounded-lg p-4 mb-6">
-        <StyledText className="text-xs text-gray-500 mb-1">Point Yang Terkumpul</StyledText>
-        <StyledText className="text-xl font-bold mb-2">Poin</StyledText>
-        <StyledInput
+      <View className="border rounded-lg p-4 mb-6">
+        <Text className="text-xs text-gray-500 mb-1">Point Yang Terkumpul</Text>
+        <Text className="text-xl font-bold mb-2">Poin</Text>
+        <TextInput
           className="border rounded px-2 py-1 w-20 text-center"
           placeholder="0"
           keyboardType="numeric"
         />
-      </StyledView>
+      </View>
 
       {/* Kotak Icon Menu */}
-      <StyledView className="flex-row justify-between">
+      <View className="flex-row justify-between">
         {[...Array(5)].map((_, index) => (
-          <StyledView
+          <View
             key={index}
             className="w-12 h-12 border rounded-md"
           />
         ))}
-      </StyledView>
+      </View>
     </ScrollView>
   );
 }
