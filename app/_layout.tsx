@@ -1,7 +1,6 @@
-import { Stack } from 'expo-router'
-import { useEffect } from 'react'
-import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Stack, useRouter } from 'expo-router'
+import { useEffect } from 'react'
 import { API_URL } from '../api/auth'
 
 export default function RootLayout() {
