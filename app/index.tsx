@@ -93,7 +93,6 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Points Card */}
         <View style={{ paddingHorizontal: 20, paddingBottom: 24 }}>
           <View
             style={{
@@ -126,7 +125,6 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Weight Info */}
         <View style={{ paddingHorizontal: 20, paddingBottom: 24 }}>
           <View
             style={{
@@ -152,9 +150,7 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Grid Layout */}
         <View style={{ paddingHorizontal: 20, paddingBottom: 100 }}>
-          {/* First Row - 2 items */}
           <View style={{ 
             flexDirection: 'row', 
             gap: 16, 
@@ -178,7 +174,6 @@ export default function Home() {
             />
           </View>
 
-          {/* Second Row - 2 items, left one wider */}
           <View style={{ 
             flexDirection: 'row', 
             gap: 16, 
@@ -202,7 +197,6 @@ export default function Home() {
             />
           </View>
 
-          {/* Third Row - 3 equal items */}
           <View style={{ 
             flexDirection: 'row', 
             gap: 16 

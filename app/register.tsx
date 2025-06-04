@@ -25,8 +25,7 @@ export default function Register() {
     email: '',
     phone_number: '',
     password: '',
-    password_confirmation: '',  // sudah ada di state
-    address: '',
+    password_confirmation: '',
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -159,21 +158,6 @@ export default function Register() {
                   underlineColorAndroid="transparent"
                 />
               </View>
-            </View>
-
-            {/* Alamat */}
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { fontFamily: 'Poppins_600SemiBold' }]}>Alamat</Text>
-              <TextInput
-                placeholder="Alamat lengkap Anda"
-                value={formData.address}
-                onChangeText={value => handleChange('address', value)}
-                style={[styles.input, { fontFamily: 'Poppins_400Regular' }]}
-                multiline
-                numberOfLines={3}
-                editable={!loading}
-                underlineColorAndroid="transparent"
-              />
             </View>
 
             {/* Email */}
