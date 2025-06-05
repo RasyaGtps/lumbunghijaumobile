@@ -84,11 +84,14 @@ export default function Login() {
         >
           <View style={styles.content}>
             <View style={styles.header}>
-              <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>
-                Selamat datang di
+              <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>
+                Masuk
               </Text>
-              <Text style={[styles.subtitle, styles.highlight, { fontFamily: 'Poppins_600SemiBold' }]}>
-                Lumbung Hijau
+              <Text style={[styles.subtitle, styles.highlight, { fontFamily: 'Poppins_400Regular' }]}>
+                Selamat datang, Silahkan masuk untuk 
+              </Text>
+                <Text style={[styles.subtitle, styles.highlight, { fontFamily: 'Poppins_400Regular' }]}>
+               melanjutkan
               </Text>
             </View>
 
@@ -123,15 +126,16 @@ export default function Login() {
                 </View>
               </View>
 
+
               <TouchableOpacity onPress={handleLogin} disabled={loading} style={styles.registerButtonWrapper}>
                 <LinearGradient
-                  colors={loading ? ['#9CA3AF', '#9CA3AF'] : ['#D9D9D9', '#0A529F']}
+                  colors={['#1B9C41', '#91D68D']} // gradasi hijau dari atas ke bawah
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
+                  end={{ x: 0, y: 1 }}
                   style={styles.registerButton}
                 >
                   <Text style={[styles.registerButtonText, { fontFamily: 'Poppins_600SemiBold' }]}>
-                    {loading ? 'Loading...' : 'Masuk'}
+                    {loading ? 'Loading...' : 'Selesai'}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -153,14 +157,15 @@ const styles = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: { flex: 1, backgroundColor: '#FFFFFF' },
   scrollView: { flex: 1 },
-  scrollContentContainer: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 30 },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  scrollContentContainer: { flexGrow: 1, paddingHorizontal: 20, paddingVertical: 10 },
+  content: { flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: 110, },
   header: { marginBottom: 30, alignItems: 'center' },
-  subtitle: { fontSize: 24, color: '#0A529F', textAlign: 'center' },
+  title: {fontSize:26, color: '#000000'},
+  subtitle: { fontSize: 12, color: '#999999', textAlign: 'center' },
   highlight: { fontWeight: 'bold' },
-  form: { width: '100%' },
+  form: { width: '100%', paddingTop: 25 },
   inputGroup: { marginBottom: 18 },
-  label: { fontSize: 14, color: '#0A529F', marginBottom: 8 },
+  label: { fontSize: 14, color: '#000000', marginBottom: 8 },
   input: {
     borderWidth: 1,
     borderColor: '#9CA3AF',
