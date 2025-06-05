@@ -26,7 +26,6 @@ export default function Register() {
     phone_number: '',
     password: '',
     password_confirmation: '',
-    address: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -156,20 +155,6 @@ export default function Register() {
                   editable={!loading}
                 />
               </View>
-            </View>
-
-            {/* Alamat */}
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { fontFamily: 'Poppins_600SemiBold' }]}>Alamat</Text>
-              <TextInput
-                placeholder="Alamat lengkap Anda"
-                value={formData.address}
-                onChangeText={value => handleChange('address', value)}
-                style={[styles.input, { fontFamily: 'Poppins_400Regular' }]}
-                multiline
-                numberOfLines={3}
-                editable={!loading}
-              />
             </View>
 
             {/* Email */}

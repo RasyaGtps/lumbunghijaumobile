@@ -119,7 +119,7 @@
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{
-            paddingBottom: 25
+            paddingBottom: 100
           }}
         >
           <View style={{
