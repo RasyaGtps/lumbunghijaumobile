@@ -10,13 +10,15 @@ SplashScreen.preventAutoHideAsync()
 export default function RootLayout() {
   const router = useRouter()
   const [appIsReady, setAppIsReady] = useState(false)
+  const [initialRoute, setInitialRoute] = useState<string | null>(null)
 
   useEffect(() => {
     const prepare = async () => {
       try {
         const token = await AsyncStorage.getItem('token')
+
         if (!token) {
-          router.replace('/login')
+          setInitialRoute('/login')
           return
         }
 
@@ -31,15 +33,15 @@ export default function RootLayout() {
 
         if (!response.ok || !data.status || !data.data?.user) {
           await AsyncStorage.multiRemove(['token', 'user'])
-          router.replace('/login')
+          setInitialRoute('/login')
           return
         }
 
         await AsyncStorage.setItem('user', JSON.stringify(data.data.user))
-        router.replace('/')
+        setInitialRoute('/')
       } catch (error) {
         await AsyncStorage.multiRemove(['token', 'user'])
-        router.replace('/login')
+        setInitialRoute('/login')
       } finally {
         setAppIsReady(true)
       }
@@ -49,10 +51,17 @@ export default function RootLayout() {
   }, [])
 
   useEffect(() => {
-    if (appIsReady) {
-      SplashScreen.hideAsync()
+    const runAfterSplash = async () => {
+      if (appIsReady && initialRoute !== null) {
+        // Tunggu sedikit supaya splash kelihatan (opsional, misalnya 300ms)
+        await new Promise(resolve => setTimeout(resolve, 300))
+        await SplashScreen.hideAsync()
+        router.replace(initialRoute)
+      }
     }
-  }, [appIsReady])
+
+    runAfterSplash()
+  }, [appIsReady, initialRoute])
 
   return (
     <Stack
