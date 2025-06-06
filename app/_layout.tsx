@@ -1,58 +1,54 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Stack, useRouter, useSegments } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
 import { useEffect } from 'react'
 import { API_URL } from '../api/auth'
+
+// Jangan sembunyikan splash screen otomatis
+SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
   const segments = useSegments()
   const router = useRouter()
+  const [appIsReady, setAppIsReady] = useState(false)
 
   useEffect(() => {
     checkAuth()
-  }, [segments])
+  }, [])
 
   const checkAuth = async () => {
     try {
-      const [token, userStr] = await Promise.all([
-        AsyncStorage.getItem('token'),
-        AsyncStorage.getItem('user')
-      ])
-
-      const user = userStr ? JSON.parse(userStr) : null
-      const segment = segments[0] // Mendapatkan segment pertama dari path
-      const isAuthRoute = segment === 'login' || segment === 'register'
-
-      // Jika tidak ada token, arahkan ke login kecuali jika di halaman auth atau register
-      if (!token && !isAuthRoute) {
+      const token = await AsyncStorage.getItem('token')
+      if (!token) {
         router.replace('/login')
         return
       }
 
-      // Jika ada token tapi di halaman auth, arahkan sesuai role
-      if (token && isAuthRoute) {
-        if (user?.role === 'collector') {
-          router.replace('/collector')
-        } else {
-          router.replace('/')
+      const response = await fetch(`${API_URL}/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
         }
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        await AsyncStorage.multiRemove(['token', 'user'])
+        router.replace('/login')
         return
       }
 
-      // Jika ada token, pastikan user di halaman yang sesuai dengan rolenya
-      if (token && user) {
-        const isInCollectorPages = segment === 'collector'
-        const isCollector = user.role === 'collector'
-
-        if (isCollector && !isInCollectorPages) {
-          router.replace('/collector')
-        } else if (!isCollector && isInCollectorPages) {
-          router.replace('/')
-        }
+      if (data.status && data.data?.user) {
+        await AsyncStorage.setItem('user', JSON.stringify(data.data.user))
+        router.replace('/')
+      } else {
+        throw new Error(`Format data tidak sesuai: ${JSON.stringify(data)}`)
       }
     } catch (error) {
-      console.error('Error checking auth:', error)
+      await AsyncStorage.multiRemove(['token', 'user'])
+      router.replace('/login')
     }
-  }
+  }, [appIsReady])
 
   return (
     <Stack

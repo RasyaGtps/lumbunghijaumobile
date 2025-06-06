@@ -27,11 +27,11 @@ export default function Register() {
     password: '',
     password_confirmation: '',
   });
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  // Load font Poppins
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
@@ -74,10 +74,8 @@ export default function Register() {
     }
 
     setLoading(true);
-
     try {
       const response = await registerUser(formData);
-
       if (response.status) {
         Alert.alert('Sukses', 'Registrasi berhasil, silahkan login', [
           {
@@ -116,19 +114,20 @@ export default function Register() {
           {/* Header dengan tombol back */}
           <View style={styles.headerBackContainer}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#0A529F" />
+              <Ionicons name="arrow-back" size={24} color="#007D1B" />
             </TouchableOpacity>
           </View>
 
-          {/* Subtitle saja, tanpa "Buat Akun" */}
+          {/* Judul dan Subjudul */}
           <View style={styles.header}>
-            <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>Bergabunglah bersama</Text>
-            <Text style={[styles.subtitle, styles.highlight, { fontFamily: 'Poppins_600SemiBold' }]}>Lumbung Hijau</Text>
+              <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>Buat Akun</Text>
+              <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>Bergabunglah bersama Lumbung hijau</Text>
+              <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>Lumbung hijau</Text>
           </View>
 
-          {/* Form */}
+          {/* Form Input */}
           <View style={styles.form}>
-            {/* Nama Lengkap */}
+            {/* Nama */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { fontFamily: 'Poppins_600SemiBold' }]}>Nama Lengkap</Text>
               <TextInput
@@ -138,11 +137,10 @@ export default function Register() {
                 style={[styles.input, { fontFamily: 'Poppins_400Regular' }]}
                 autoCapitalize="words"
                 editable={!loading}
-                underlineColorAndroid="transparent"
               />
             </View>
 
-            {/* Nomor Telepon */}
+            {/* Telepon */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { fontFamily: 'Poppins_600SemiBold' }]}>Nomor Telepon</Text>
               <View style={styles.phoneContainer}>
@@ -155,7 +153,6 @@ export default function Register() {
                   keyboardType="phone-pad"
                   maxLength={13}
                   editable={!loading}
-                  underlineColorAndroid="transparent"
                 />
               </View>
             </View>
@@ -171,7 +168,6 @@ export default function Register() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 editable={!loading}
-                underlineColorAndroid="transparent"
               />
             </View>
 
@@ -186,7 +182,6 @@ export default function Register() {
                   secureTextEntry={!showPassword}
                   style={[styles.passwordInput, { fontFamily: 'Poppins_400Regular' }]}
                   editable={!loading}
-                  underlineColorAndroid="transparent"
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
                   <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#9CA3AF" />
@@ -194,7 +189,7 @@ export default function Register() {
               </View>
             </View>
 
-            {/* Konfirmasi Kata Sandi */}
+            {/* Konfirmasi Password */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { fontFamily: 'Poppins_600SemiBold' }]}>Konfirmasi Kata Sandi</Text>
               <View style={styles.passwordContainer}>
@@ -205,7 +200,6 @@ export default function Register() {
                   secureTextEntry={!showPassword}
                   style={[styles.passwordInput, { fontFamily: 'Poppins_400Regular' }]}
                   editable={!loading}
-                  underlineColorAndroid="transparent"
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
                   <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#9CA3AF" />
@@ -213,7 +207,7 @@ export default function Register() {
               </View>
             </View>
 
-            {/* Syarat dan Ketentuan */}
+            {/* Checkbox Syarat */}
             <View style={styles.termsContainer}>
               <TouchableOpacity onPress={() => setAgreeToTerms(!agreeToTerms)} style={styles.checkboxContainer} disabled={loading}>
                 <View style={[styles.checkbox, agreeToTerms && styles.checkboxChecked]}>
@@ -228,19 +222,17 @@ export default function Register() {
             {/* Tombol Daftar */}
             <TouchableOpacity onPress={handleRegister} disabled={loading} style={styles.registerButtonWrapper}>
               <LinearGradient
-                colors={loading ? ['#9CA3AF', '#9CA3AF'] : ['#D9D9D9', '#0A529F']}
+                colors={loading ? ['#9CA3AF', '#9CA3AF'] : ['#2E9E4D', '#78C885']}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
                 style={styles.registerButton}
               >
                 <Text style={[styles.registerButtonText, { fontFamily: 'Poppins_600SemiBold' }]}>
-                  {loading ? 'Loading...' : 'Daftar'}
+                  {loading ? 'Loading...' : 'Selesai'}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
-
-          {/* Footer DIHILANGKAN */}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -252,14 +244,14 @@ const styles = StyleSheet.create({
   scrollView: { flex: 1 },
   scrollContentContainer: { paddingHorizontal: 24, paddingBottom: 20 },
   content: { flex: 1, paddingTop: 48 },
-
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
   headerBackContainer: { marginBottom: 24 },
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
 
   header: { marginBottom: 32 },
-  subtitle: { fontSize: 24, color: '#0A529F', textAlign: 'center' },
+  title: {fontSize:26, textAlign: 'center'},
+  subtitle: { fontSize: 12, color: '#999999', textAlign: 'center' },
   highlight: { fontWeight: '600' },
 
   form: {},
@@ -331,14 +323,14 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#0A529F',
+    borderColor: '#007D1B',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
   },
 
   checkboxChecked: {
-    backgroundColor: '#0A529F',
+    backgroundColor: '#007D1B',
   },
 
   termsText: {
@@ -347,11 +339,11 @@ const styles = StyleSheet.create({
   },
 
   termsLink: {
-    color: '#0A529F',
+    color: '#007D1B',
   },
 
   registerButtonWrapper: {
-    borderRadius: 8,
+    borderRadius: 12,
     overflow: 'hidden',
   },
 
@@ -359,6 +351,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 12,
   },
 
   registerButtonText: {
