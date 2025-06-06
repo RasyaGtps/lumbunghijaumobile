@@ -440,11 +440,11 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingLeft:20,
     paddingRight: 15,
-    paddingBottom: 150,
+    paddingBottom: 15,
     alignItems: 'flex-start',
     gap: 16,
     width: 220,
-    height: 150,
+    height: 155,
     marginRight: 16,
   },
   actionImage: {
