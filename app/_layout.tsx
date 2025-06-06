@@ -10,29 +10,16 @@ export default function RootLayout() {
   const segments = useSegments()
   const router = useRouter()
   const [appIsReady, setAppIsReady] = useState(false)
+  const [initialRoute, setInitialRoute] = useState<string | null>(null)
 
   useEffect(() => {
-    async function prepare() {
+    const prepare = async () => {
       try {
-        await checkAuth()
-      } catch (e) {
-        console.warn(e)
-      } finally {
-        setAppIsReady(true)
-        await SplashScreen.hideAsync()
-      }
-    }
-
-    prepare()
-  }, [])
-
-  const checkAuth = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token')
-      if (!token) {
-        router.replace('/login')
-        return
-      }
+        const token = await AsyncStorage.getItem('token')
+        if (!token) {
+          router.replace('/login')
+          return
+        }
 
       const response = await fetch(`${API_URL}/profile`, {
         headers: {
@@ -43,23 +30,31 @@ export default function RootLayout() {
 
       const data = await response.json()
 
-      if (!response.ok) {
-        await AsyncStorage.multiRemove(['token', 'user'])
-        router.replace('/login')
-        return
-      }
+        if (!response.ok || !data.status || !data.data?.user) {
+          await AsyncStorage.multiRemove(['token', 'user'])
+          router.replace('/login')
+          return
+        }
 
       if (data.status && data.data?.user) {
         await AsyncStorage.setItem('user', JSON.stringify(data.data.user))
         router.replace('/')
-      } else {
-        throw new Error(`Format data tidak sesuai: ${JSON.stringify(data)}`)
+      } catch (error) {
+        await AsyncStorage.multiRemove(['token', 'user'])
+        router.replace('/login')
+      } finally {
+        setAppIsReady(true)
       }
-    } catch (error) {
-      await AsyncStorage.multiRemove(['token', 'user'])
-      router.replace('/login')
     }
-  }
+
+    prepare()
+  }, [])
+
+  useEffect(() => {
+    if (appIsReady) {
+      SplashScreen.hideAsync()
+    }
+  }, [appIsReady])
 
   return (
     <Stack
