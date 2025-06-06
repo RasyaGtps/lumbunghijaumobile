@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Stack, useRouter } from 'expo-router'
-import { useEffect } from 'react'
+import { SplashScreen, Stack, useRouter, useSegments } from 'expo-router'
+import { useEffect, useState } from 'react'
 import { API_URL } from '../api/auth'
 
 // Jangan sembunyikan splash screen otomatis
@@ -12,7 +12,18 @@ export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false)
 
   useEffect(() => {
-    checkAuth()
+    async function prepare() {
+      try {
+        await checkAuth()
+      } catch (e) {
+        console.warn(e)
+      } finally {
+        setAppIsReady(true)
+        await SplashScreen.hideAsync()
+      }
+    }
+
+    prepare()
   }, [])
 
   const checkAuth = async () => {
@@ -48,7 +59,7 @@ export default function RootLayout() {
       await AsyncStorage.multiRemove(['token', 'user'])
       router.replace('/login')
     }
-  }, [appIsReady])
+  }
 
   return (
     <Stack
