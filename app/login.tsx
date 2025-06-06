@@ -58,7 +58,13 @@ export default function Login() {
       if (response.status && response.data) {
         await AsyncStorage.setItem('token', response.data.token);
         await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
-        router.replace('/');
+        
+        // Redirect berdasarkan role
+        if (response.data.user.role === 'collector') {
+          router.replace('/collector');
+        } else {
+          router.replace('/');
+        }
       } else {
         Alert.alert('Error', response.message || 'Login gagal');
       }
@@ -138,7 +144,7 @@ export default function Login() {
 
               <TouchableOpacity onPress={() => router.push('/register')} style={styles.registerRedirect}>
                 <Text style={[styles.registerRedirectText, { fontFamily: 'Poppins_400Regular' }]}>
-                  Belum punya akun? Daftar
+                  Belum punya akun? <Text style={{ fontFamily: 'Poppins_600SemiBold', color: '#0A529F' }}>Daftar</Text>
                 </Text>
               </TouchableOpacity>
             </View>
@@ -195,10 +201,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
   },
-  registerRedirect: { marginTop: 20, alignItems: 'center' },
+  registerRedirect: { 
+    marginTop: 20, 
+    alignItems: 'center',
+    paddingVertical: 10  // Add padding for better touch target
+  },
   registerRedirectText: {
-    color: '#0A529F',
+    color: '#374151',  // Darker color for better readability
     fontSize: 14,
-    textDecorationLine: 'underline',
   },
 });

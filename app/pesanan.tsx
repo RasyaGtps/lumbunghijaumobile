@@ -45,7 +45,7 @@ export default function Pesanan() {
 
   useEffect(() => {
     fetchTransactions()
-  }, [])
+  }, [activeTab])
 
   const fetchTransactions = async () => {
     try {
@@ -55,9 +55,10 @@ export default function Pesanan() {
         return
       }
 
-      console.log('Fetching transactions with status:', activeTab)
+      setLoading(true)
+      console.log('Fetching transactions...')
       
-      const response = await fetch(`${BASE_URL}/api/transactions?status=${activeTab}`, {
+      const response = await fetch(`${BASE_URL}/api/transactions/user`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -65,17 +66,22 @@ export default function Pesanan() {
         },
       })
 
-      const contentType = response.headers.get('content-type')
-      if (!contentType || !contentType.includes('application/json')) {
-        console.error('Non-JSON response:', await response.text())
-        throw new Error('Server returned non-JSON response')
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
       }
 
       const data = await response.json()
       console.log('Transactions data:', data)
 
       if (data.status) {
-        setTransactions(data.data || [])
+        // Filter transactions based on activeTab
+        const filteredTransactions = data.data.filter((transaction: Transaction) => 
+          activeTab === 'pending' ? 
+            ['pending', 'verified'].includes(transaction.status) : 
+            ['completed', 'rejected'].includes(transaction.status)
+        )
+        setTransactions(filteredTransactions || [])
+        setError(null)
       } else {
         setError(data.message || 'Gagal mengambil data transaksi')
       }
@@ -96,6 +102,51 @@ export default function Pesanan() {
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return {
+          bg: '#FEF3C7',
+          text: '#D97706'
+        }
+      case 'verified':
+        return {
+          bg: '#DCFCE7',
+          text: '#15803D'
+        }
+      case 'completed':
+        return {
+          bg: '#DBEAFE',
+          text: '#1D4ED8'
+        }
+      case 'rejected':
+        return {
+          bg: '#FEE2E2',
+          text: '#DC2626'
+        }
+      default:
+        return {
+          bg: '#F3F4F6',
+          text: '#6B7280'
+        }
+    }
+  }
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Menunggu Verifikasi'
+      case 'verified':
+        return 'Terverifikasi'
+      case 'completed':
+        return 'Selesai'
+      case 'rejected':
+        return 'Ditolak'
+      default:
+        return status
+    }
   }
 
   if (loading) {
@@ -145,7 +196,7 @@ export default function Pesanan() {
               textAlign: 'center',
               color: activeTab === 'pending' ? '#10b981' : '#6b7280',
               fontWeight: activeTab === 'pending' ? '600' : '400'
-            }}>Dalam Proses</Text>
+            }}>Aktif</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -165,7 +216,7 @@ export default function Pesanan() {
               textAlign: 'center',
               color: activeTab === 'history' ? '#10b981' : '#6b7280',
               fontWeight: activeTab === 'history' ? '600' : '400'
-            }}>Riwayat</Text>
+            }}>Selesai</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -258,13 +309,16 @@ export default function Pesanan() {
                   {formatDate(transaction.created_at)}
                 </Text>
                 <View style={{ 
-                  backgroundColor: '#FEF3C7',
+                  backgroundColor: getStatusColor(transaction.status).bg,
                   paddingHorizontal: 8,
                   paddingVertical: 2,
                   borderRadius: 12
                 }}>
-                  <Text style={{ color: '#D97706', fontSize: 12 }}>
-                    {transaction.status === 'pending' ? 'Menunggu Picker' : 'Selesai'}
+                  <Text style={{ 
+                    color: getStatusColor(transaction.status).text, 
+                    fontSize: 12 
+                  }}>
+                    {getStatusText(transaction.status)}
                   </Text>
                 </View>
               </View>

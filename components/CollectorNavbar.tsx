@@ -1,34 +1,40 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import { useRouter, usePathname } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { memo } from 'react'
 
-export default function CustomNavbar() {
+type NavPath = '/collector' | '/collector/verify' | '/collector/history' | '/collector/profile'
+
+const CollectorNavbar = memo(() => {
   const router = useRouter()
   const pathname = usePathname()
   const insets = useSafeAreaInsets()
 
   const navItems = [
-    { path: '/' as const, label: 'home', title: 'Home' },
-    { path: '/pesanan' as const, label: 'pesanan', title: 'Pesanan' },
-    { path: '/waste-categories' as const, label: 'mulai', title: 'Mulai' },
-    { path: '/cart' as const, label: 'keranjang', title: 'Keranjang' },
-    { path: '/profile' as const, label: 'profil', title: 'Profil' }
+    { path: '/collector' as const, label: 'home', title: 'Home' },
+    { path: '/collector/verify' as const, label: 'verify', title: 'Verifikasi' },
+    { path: '/collector/history' as const, label: 'history', title: 'Riwayat' },
+    { path: '/collector/profile' as const, label: 'profile', title: 'Profil' }
   ]
 
   const getIcon = (label: string) => {
     switch (label) {
       case 'home':
         return '🏠'
-      case 'pesanan':
+      case 'verify':
+        return '✅'
+      case 'history':
         return '📋'
-      case 'mulai':
-        return '♻️'
-      case 'keranjang':
-        return '🛒'
-      case 'profil':
+      case 'profile':
         return '👤'
       default:
         return '📱'
+    }
+  }
+
+  const handlePress = (path: NavPath) => {
+    if (pathname !== path) {
+      router.replace(path)
     }
   }
 
@@ -58,7 +64,7 @@ export default function CustomNavbar() {
         {navItems.map((item) => (
           <TouchableOpacity
             key={item.path}
-            onPress={() => router.replace(item.path)}
+            onPress={() => handlePress(item.path)}
             style={{
               alignItems: 'center',
               opacity: pathname === item.path ? 1 : 0.5
@@ -78,4 +84,8 @@ export default function CustomNavbar() {
       </View>
     </View>
   )
-}
+})
+
+CollectorNavbar.displayName = 'CollectorNavbar'
+
+export default CollectorNavbar 

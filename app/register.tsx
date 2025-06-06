@@ -82,7 +82,7 @@ export default function Register() {
         Alert.alert('Sukses', 'Registrasi berhasil, silahkan login', [
           {
             text: 'OK',
-            onPress: () => router.replace('/login'),
+            onPress: () => router.push('/login'),
           },
         ]);
       } else {
