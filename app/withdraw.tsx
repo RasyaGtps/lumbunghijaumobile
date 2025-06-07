@@ -6,7 +6,10 @@ import {
   TouchableOpacity, 
   TextInput,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
@@ -18,11 +21,29 @@ export default function Withdraw() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
   const [amount, setAmount] = useState('')
+  const [method, setMethod] = useState('')
+  const [virtualAccount, setVirtualAccount] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleWithdraw = async () => {
-    if (!amount || parseFloat(amount) <= 0) {
+    const withdrawalAmount = parseFloat(amount.replace(/[.,]/g, ''))
+    if (!amount || withdrawalAmount <= 0) {
       Alert.alert('Error', 'Masukkan jumlah penarikan yang valid')
+      return
+    }
+
+    if (withdrawalAmount < 50000) {
+      Alert.alert('Error', 'Jumlah penarikan minimal adalah Rp 50.000')
+      return
+    }
+
+    if (!method.trim()) {
+      Alert.alert('Error', 'Masukkan metode penarikan')
+      return
+    }
+
+    if (!virtualAccount.trim() || virtualAccount.length < 10) {
+      Alert.alert('Error', 'Masukkan nomor virtual account yang valid (minimal 10 digit)')
       return
     }
 
@@ -43,7 +64,9 @@ export default function Withdraw() {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          amount: parseFloat(amount)
+          amount: withdrawalAmount,
+          method: method.trim(),
+          virtual_account: virtualAccount.trim()
         })
       })
 
@@ -57,9 +80,8 @@ export default function Withdraw() {
             {
               text: 'OK',
               onPress: () => {
-                // Update saldo di AsyncStorage
                 updateUserBalance(data.data.saldo_tersisa)
-                router.back()
+                router.push('/withdrawal-history')
               }
             }
           ]
@@ -88,8 +110,25 @@ export default function Withdraw() {
     }
   }
 
+  // Format amount while typing to show thousands separator
+  const handleAmountChange = (text: string) => {
+    // Remove non-numeric characters
+    const numericValue = text.replace(/[^0-9]/g, '')
+    
+    if (numericValue) {
+      // Convert to number and format with thousands separator
+      const formattedValue = parseInt(numericValue).toLocaleString('id-ID')
+      setAmount(formattedValue)
+    } else {
+      setAmount('')
+    }
+  }
+
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <KeyboardAvoidingView 
+      style={[styles.container, { paddingTop: insets.top }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity 
@@ -102,28 +141,60 @@ export default function Withdraw() {
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Form */}
-      <View style={styles.content}>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Amount Input */}
         <Text style={styles.label}>Jumlah Penarikan</Text>
         <View style={styles.inputContainer}>
           <Text style={styles.currencyPrefix}>Rp</Text>
           <TextInput
             style={styles.input}
             value={amount}
-            onChangeText={setAmount}
+            onChangeText={handleAmountChange}
             placeholder="0"
             keyboardType="numeric"
             placeholderTextColor="#9CA3AF"
           />
         </View>
+        <Text style={styles.infoText}>Jumlah penarikan minimal: Rp 50.000</Text>
+
+        {/* Method Input */}
+        <Text style={styles.label}>Metode Penarikan</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={method}
+            onChangeText={setMethod}
+            placeholder="Contoh: BCA, GoPay, OVO, dll"
+            placeholderTextColor="#9CA3AF"
+            autoCapitalize="none"
+          />
+        </View>
+
+        {/* Virtual Account Input */}
+        <Text style={styles.label}>Nomor Virtual Account</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={virtualAccount}
+            onChangeText={text => setVirtualAccount(text.replace(/[^0-9]/g, ''))}
+            placeholder="Masukkan nomor virtual account"
+            keyboardType="numeric"
+            placeholderTextColor="#9CA3AF"
+          />
+        </View>
+        <Text style={styles.infoText}>Minimal 10 digit nomor virtual account</Text>
 
         <TouchableOpacity
           style={[
             styles.withdrawButton,
-            (!amount || loading) && styles.withdrawButtonDisabled
+            (!amount || !method.trim() || !virtualAccount.trim() || virtualAccount.length < 10 || loading || parseFloat(amount.replace(/[.,]/g, '')) < 50000) && styles.withdrawButtonDisabled
           ]}
           onPress={handleWithdraw}
-          disabled={!amount || loading}
+          disabled={!amount || !method.trim() || !virtualAccount.trim() || virtualAccount.length < 10 || loading || parseFloat(amount.replace(/[.,]/g, '')) < 50000}
         >
           {loading ? (
             <ActivityIndicator color="white" />
@@ -131,8 +202,8 @@ export default function Withdraw() {
             <Text style={styles.withdrawButtonText}>Tarik Saldo</Text>
           )}
         </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -159,11 +230,13 @@ const styles = StyleSheet.create({
     color: '#111827'
   },
   content: {
+    flex: 1,
     padding: 24
   },
   label: {
     fontSize: 14,
-    color: '#6B7280',
+    fontWeight: '500',
+    color: '#374151',
     marginBottom: 8
   },
   inputContainer: {
@@ -173,7 +246,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 24
+    marginBottom: 8,
+    backgroundColor: '#F9FAFB'
   },
   currencyPrefix: {
     fontSize: 16,
@@ -186,11 +260,18 @@ const styles = StyleSheet.create({
     color: '#111827',
     paddingVertical: 12
   },
+  infoText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 24,
+    fontStyle: 'italic'
+  },
   withdrawButton: {
     backgroundColor: '#00A74F',
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 8,
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 8
   },
   withdrawButtonDisabled: {
     backgroundColor: '#9CA3AF'
@@ -200,4 +281,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600'
   }
-}) 
+}); 

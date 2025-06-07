@@ -171,7 +171,7 @@ export default function TransactionDetailsPage() {
             name="arrow-back" 
             size={24} 
             color="#111827"
-            onPress={() => router.back()} 
+            onPress={() => router.push('/pesanan')} 
           />
           <Text style={styles.headerTitle}>Detail Transaksi</Text>
           <View style={{ width: 24 }} />

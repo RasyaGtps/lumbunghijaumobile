@@ -1,14 +1,34 @@
 import { Poppins_400Regular, Poppins_600SemiBold, useFonts } from '@expo-google-fonts/poppins';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function RegisterSuccessScreen() {
+export default function TransactionSuccessScreen() {
   const router = useRouter();
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
   });
+
+  const handleContinue = async () => {
+    try {
+      // Get the stored transaction ID
+      const transactionId = await AsyncStorage.getItem('last_transaction_id');
+      if (transactionId) {
+        // Clear the stored ID since we don't need it anymore
+        await AsyncStorage.removeItem('last_transaction_id');
+        // Navigate to transaction details
+        router.replace(`/transaction/${transactionId}`);
+      } else {
+        // Fallback to home if no transaction ID found
+        router.replace('/');
+      }
+    } catch (error) {
+      console.error('Error handling continue:', error);
+      router.replace('/');
+    }
+  };
 
   if (!fontsLoaded) {
     return (
@@ -21,24 +41,24 @@ export default function RegisterSuccessScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../assets/images/transaction-succcess-icon.png')} // Pastikan path sesuai dengan folder kamu
+        source={require('../assets/images/transaction-success-icon.png')}
         style={styles.icon}
       />
       
       <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>
-        Terima kasih telah berpartisipasi!
+        Transaksi Berhasil!
       </Text>
       
       <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>
-        Poin anda telah di akumulasikan ke akun anda , {'\n'}terimakasih telah berpartisipasi dalam aplikasi kita!!
+        Permintaan penjemputan sampah Anda telah berhasil dibuat. Silakan tunggu picker untuk memverifikasi sampah Anda.
       </Text>
       
       <TouchableOpacity 
         style={styles.continueButton} 
-        onPress={() => router.replace('/pesanan')}
+        onPress={handleContinue}
       >
         <Text style={[styles.continueButtonText, { fontFamily: 'Poppins_600SemiBold' }]}>
-          Selesai
+          Lihat Detail Transaksi
         </Text>
       </TouchableOpacity>
     </View>
@@ -82,7 +102,7 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: '#22C55E',
     paddingVertical: 16,
-    paddingHorizontal: 120,
+    paddingHorizontal: 32,
     borderRadius: 12,
     shadowColor: '#22C55E',
     shadowOffset: {
@@ -92,10 +112,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
+    width: '100%',
   },
   continueButtonText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 16,
     textAlign: 'center',
   },
 });

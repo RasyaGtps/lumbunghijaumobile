@@ -207,16 +207,10 @@ export default function Cart() {
       console.log('Submit response:', data)
 
       if (data.status) {
-        Alert.alert(
-          'Sukses', 
-          'Transaksi berhasil disubmit',
-          [
-            { 
-              text: 'OK', 
-              onPress: () => router.replace(`/transaction/${data.data.id}`)
-            }
-          ]
-        )
+        // Store transaction ID in AsyncStorage for later use
+        await AsyncStorage.setItem('last_transaction_id', String(data.data.id))
+        // Redirect to success page first
+        router.replace('/transaction-success')
       } else {
         Alert.alert('Error', data.message || 'Gagal submit transaksi')
       }
@@ -310,7 +304,7 @@ export default function Cart() {
           backgroundColor: 'white'
         }}>
           <TouchableOpacity 
-            onPress={() => router.back()}
+            onPress={() => router.push('/waste-categories')}
             style={{ 
               width: 32,
               height: 32,
@@ -364,7 +358,7 @@ export default function Cart() {
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity 
-            onPress={() => router.back()}
+            onPress={() => router.push('/waste-categories')}
             style={{ 
               width: 32,
               height: 32,
