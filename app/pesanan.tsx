@@ -35,6 +35,215 @@ interface Transaction {
   }>
 }
 
+// Styles
+const styles = {
+  container: {
+    flex: 1,
+    backgroundColor: '#F9FAFB'
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center' as 'center',
+    alignItems: 'center' as 'center',
+    backgroundColor: '#FFFFFF'
+  },
+  header: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600' as '600',
+    textAlign: 'center' as 'center',
+    paddingVertical: 16,
+    color: '#111827'
+  },
+  tabContainer: {
+    flexDirection: 'row' as 'row',
+    paddingHorizontal: 16,
+    marginBottom: 0,
+    backgroundColor: '#FFFFFF'
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderBottomWidth: 2
+  },
+  tabButtonActive: {
+    borderBottomColor: '#10B981'
+  },
+  tabButtonInactive: {
+    borderBottomColor: 'transparent'
+  },
+  tabText: {
+    textAlign: 'center' as 'center',
+    fontSize: 14,
+    fontWeight: '500' as '500'
+  },
+  tabTextActive: {
+    color: '#10B981'
+  },
+  tabTextInactive: {
+    color: '#9CA3AF'
+  },
+  scrollContainer: {
+    flex: 1,
+    backgroundColor: '#F9FAFB'
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 100
+  },
+  errorContainer: {
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    alignItems: 'center' as 'center',
+    marginHorizontal: 4,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2
+  },
+  errorText: {
+    color: '#DC2626',
+    marginBottom: 12,
+    textAlign: 'center' as 'center'
+  },
+  retryButton: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500' as '500'
+  },
+  emptyContainer: {
+    padding: 32,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    alignItems: 'center' as 'center',
+    marginHorizontal: 4,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#6B7280',
+    marginBottom: 20,
+    textAlign: 'center' as 'center',
+    lineHeight: 24
+  },
+  startButton: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8
+  },
+  startButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500' as '500',
+    fontSize: 14
+  },
+  transactionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 12,
+    padding: 16,
+    marginHorizontal: 4,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2
+  },
+  cardHeader: {
+    flexDirection: 'row' as 'row',
+    justifyContent: 'space-between' as 'space-between',
+    alignItems: 'center' as 'center',
+    marginBottom: 16
+  },
+  dateText: {
+    color: '#6B7280',
+    fontSize: 14
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16
+  },
+  statusBadgePending: {
+    backgroundColor: '#FEF3C7'
+  },
+  statusBadgeVerified: {
+    backgroundColor: '#D1FAE5'
+  },
+  statusBadgeRejected: {
+    backgroundColor: '#FEE2E2'
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '500' as '500'
+  },
+  statusTextPending: {
+    color: '#D97706'
+  },
+  statusTextVerified: {
+    color: '#059669'
+  },
+  statusTextRejected: {
+    color: '#DC2626'
+  },
+  weightSection: {
+    marginBottom: 16
+  },
+  sectionLabel: {
+    color: '#6B7280',
+    fontSize: 14,
+    marginBottom: 4
+  },
+  weightValue: {
+    fontSize: 16,
+    fontWeight: '600' as '600',
+    color: '#111827'
+  },
+  priceSection: {
+    flexDirection: 'row' as 'row',
+    justifyContent: 'space-between' as 'space-between',
+    alignItems: 'center' as 'center',
+    marginBottom: 16
+  },
+  priceValue: {
+    color: '#10B981',
+    fontSize: 16,
+    fontWeight: '600' as '600'
+  },
+  checkStatusButton: {
+    backgroundColor: '#10B981',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignSelf: 'flex-end' as 'flex-end'
+  },
+  checkStatusText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '500' as '500'
+  }
+}
+
 export default function Pesanan() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
@@ -103,67 +312,50 @@ export default function Pesanan() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-        <ActivityIndicator size="large" color="#00A74F" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#10B981" />
       </View>
     )
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       {/* Header */}
-      <View style={{ 
-        backgroundColor: '#fff',
-        paddingTop: insets.top || 5,
-        borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB'
-      }}>
-        <Text style={{ 
-          fontSize: 16, 
-          textAlign: 'center',
-          paddingVertical: 16
-        }}>
+      <View style={[styles.header, { paddingTop: insets.top || 5 }]}>
+        <Text style={styles.headerTitle}>
           Pesanan
         </Text>
 
         {/* Tabs */}
-        <View style={{ 
-          flexDirection: 'row',
-          paddingHorizontal: 16,
-          marginBottom: 8
-        }}>
+        <View style={styles.tabContainer}>
           <TouchableOpacity 
             onPress={() => setActiveTab('pending')}
-            style={{ 
-              flex: 1,
-              paddingVertical: 8,
-              borderBottomWidth: 2,
-              borderBottomColor: activeTab === 'pending' ? '#00A74F' : 'transparent'
-            }}
+            style={[
+              styles.tabButton,
+              activeTab === 'pending' ? styles.tabButtonActive : styles.tabButtonInactive
+            ]}
           >
-            <Text style={{ 
-              textAlign: 'center',
-              color: activeTab === 'pending' ? '#00A74F' : '#9CA3AF',
-            }}>
+            <Text style={[
+              styles.tabText,
+              activeTab === 'pending' ? styles.tabTextActive : styles.tabTextInactive
+            ]}>
               Dalam Proses
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             onPress={() => setActiveTab('history')}
-            style={{ 
-              flex: 1,
-              paddingVertical: 8,
-              borderBottomWidth: 2,
-              borderBottomColor: activeTab === 'history' ? '#00A74F' : 'transparent'
-            }}
+            style={[
+              styles.tabButton,
+              activeTab === 'history' ? styles.tabButtonActive : styles.tabButtonInactive
+            ]}
           >
-            <Text style={{ 
-              textAlign: 'center',
-              color: activeTab === 'history' ? '#00A74F' : '#9CA3AF',
-            }}>
+            <Text style={[
+              styles.tabText,
+              activeTab === 'history' ? styles.tabTextActive : styles.tabTextInactive
+            ]}>
               Riwayat
             </Text>
           </TouchableOpacity>
@@ -171,101 +363,61 @@ export default function Pesanan() {
       </View>
 
       <ScrollView 
-        style={{ flex: 1, backgroundColor: '#F3F4F6' }}
-        contentContainerStyle={{ 
-          padding: 24,
-          paddingBottom: 100
-        }}
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {error ? (
-          <View style={{ 
-            padding: 16, 
-            backgroundColor: 'white', 
-            borderRadius: 8,
-            alignItems: 'center'
-          }}>
-            <Text style={{ color: '#dc2626', marginBottom: 8 }}>{error}</Text>
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity 
               onPress={fetchTransactions}
-              style={{
-                backgroundColor: '#00A74F',
-                paddingHorizontal: 16,
-                paddingVertical: 8,
-                borderRadius: 8
-              }}
+              style={styles.retryButton}
             >
-              <Text style={{ color: 'white' }}>Coba Lagi</Text>
+              <Text style={styles.retryButtonText}>Coba Lagi</Text>
             </TouchableOpacity>
           </View>
         ) : transactions.length === 0 ? (
-          <View style={{ 
-            padding: 16, 
-            backgroundColor: 'white', 
-            borderRadius: 8,
-            alignItems: 'center'
-          }}>
+          <View style={styles.emptyContainer}>
             <Ionicons 
               name="trash-bin-outline" 
-              size={100} 
-              color="#9CA3AF"
-              style={{ marginBottom: 16 }}
+              size={80} 
+              color="#D1D5DB"
+              style={{ marginBottom: 20 }}
             />
-            <Text style={{ 
-              fontSize: 16,
-              color: '#9CA3AF',
-              marginBottom: 16,
-              textAlign: 'center'
-            }}>
+            <Text style={styles.emptyText}>
               {activeTab === 'pending' 
                 ? 'Belum memiliki pesanan yang sedang diproses' 
                 : 'Belum memiliki riwayat pesanan'}
             </Text>
             <TouchableOpacity
               onPress={() => router.push('/waste-categories')}
-              style={{
-                backgroundColor: '#00A74F',
-                paddingHorizontal: 16,
-                paddingVertical: 8,
-                borderRadius: 8
-              }}
+              style={styles.startButton}
             >
-              <Text style={{ color: 'white' }}>Mulai Daur Ulang</Text>
+              <Text style={styles.startButtonText}>Mulai Daur Ulang</Text>
             </TouchableOpacity>
           </View>
         ) : (
           transactions.map((transaction) => (
             <View 
               key={transaction.id}
-              style={{
-                backgroundColor: 'white',
-                borderRadius: 12,
-                marginBottom: 12,
-                padding: 16
-              }}
+              style={styles.transactionCard}
             >
               {/* Tanggal dan Status */}
-              <View style={{ 
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 16
-              }}>
-                <Text style={{ color: '#6B7280' }}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.dateText}>
                   {formatDate(transaction.created_at)}
                 </Text>
-                <View style={{ 
-                  backgroundColor: transaction.status === 'pending' ? '#FEF3C7' : 
-                                  transaction.status === 'verified' ? '#DCFCE7' : '#FEE2E2',
-                  paddingHorizontal: 12,
-                  paddingVertical: 4,
-                  borderRadius: 12
-                }}>
-                  <Text style={{ 
-                    fontSize: 12,
-                    color: transaction.status === 'pending' ? '#D97706' : 
-                            transaction.status === 'verified' ? '#15803D' : '#DC2626'
-                  }}>
+                <View style={[
+                  styles.statusBadge,
+                  transaction.status === 'pending' ? styles.statusBadgePending : 
+                  transaction.status === 'verified' ? styles.statusBadgeVerified : styles.statusBadgeRejected
+                ]}>
+                  <Text style={[
+                    styles.statusText,
+                    transaction.status === 'pending' ? styles.statusTextPending : 
+                    transaction.status === 'verified' ? styles.statusTextVerified : styles.statusTextRejected
+                  ]}>
                     {transaction.status === 'pending' ? 'Menunggu Picker' :
                      transaction.status === 'verified' ? 'Selesai' : 'Ditolak'}
                   </Text>
@@ -273,25 +425,21 @@ export default function Pesanan() {
               </View>
 
               {/* Total Sampah */}
-              <View style={{ marginBottom: 12 }}>
-                <Text style={{ color: '#6B7280', marginBottom: 4 }}>
+              <View style={styles.weightSection}>
+                <Text style={styles.sectionLabel}>
                   Total sampah
                 </Text>
-                <Text style={{ fontSize: 16 }}>
+                <Text style={styles.weightValue}>
                   {parseFloat(transaction.total_weight)} kg
                 </Text>
               </View>
 
               {/* Estimasi Pendapatan */}
-              <View style={{ 
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <Text style={{ color: '#6B7280' }}>
+              <View style={styles.priceSection}>
+                <Text style={styles.sectionLabel}>
                   Estimasi Pendapatan
                 </Text>
-                <Text style={{ color: '#00A74F', fontSize: 16 }}>
+                <Text style={styles.priceValue}>
                   Rp {parseInt(transaction.total_price).toLocaleString('id-ID')}
                 </Text>
               </View>
@@ -302,17 +450,10 @@ export default function Pesanan() {
                   pathname: '/transaction/[id]',
                   params: { id: transaction.id }
                 })}
-                style={{
-                  backgroundColor: '#00A74F',
-                  paddingVertical: 8,
-                  paddingHorizontal: 16,
-                  borderRadius: 8,
-                  alignSelf: 'flex-end',
-                  marginTop: 12
-                }}
+                style={styles.checkStatusButton}
               >
-                <Text style={{ color: 'white', fontSize: 12 }}>
-                  Cek Status
+                <Text style={styles.checkStatusText}>
+                  Cek Status  
                 </Text>
               </TouchableOpacity>
             </View>
@@ -323,4 +464,4 @@ export default function Pesanan() {
       <CustomNavbar />
     </View>
   )
-} 
+}
