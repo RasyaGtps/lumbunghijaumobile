@@ -21,21 +21,21 @@ export default function RegisterSuccessScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../assets/images/success-icon.png')} // Pastikan path sesuai dengan folder kamu
+        source={require('../assets/images/transaction-succcess-icon.png')} // Pastikan path sesuai dengan folder kamu
         style={styles.icon}
       />
       
       <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>
-        Akun Berhasil ditambahkan
+        Terima kasih telah berpartisipasi!
       </Text>
       
       <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>
-        Ayo kita mulai kurangi limbah{'\n'}makanan mulai sekarang!
+        Poin anda telah di akumulasikan ke akun anda , {'\n'}terimakasih telah berpartisipasi dalam aplikasi kita!!
       </Text>
       
       <TouchableOpacity 
         style={styles.continueButton} 
-        onPress={() => router.replace('/login')}
+        onPress={() => router.replace('/pesanan')}
       >
         <Text style={[styles.continueButtonText, { fontFamily: 'Poppins_600SemiBold' }]}>
           Selesai
@@ -82,8 +82,7 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: '#22C55E',
     paddingVertical: 16,
-    width: '100%',
-    maxWidth: 320,
+    paddingHorizontal: 120,
     borderRadius: 12,
     shadowColor: '#22C55E',
     shadowOffset: {
