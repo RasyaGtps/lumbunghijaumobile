@@ -1,7 +1,8 @@
 import { Poppins_400Regular, Poppins_600SemiBold, useFonts } from '@expo-google-fonts/poppins';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function RegisterSuccessScreen() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function RegisterSuccessScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../assets/images/transaction-succcess-icon.png')} // Pastikan path sesuai dengan folder kamu
+        source={require('../assets/images/icon/keranjang-icon.png')} // Pastikan path sesuai dengan folder kamu
         style={styles.icon}
       />
       
