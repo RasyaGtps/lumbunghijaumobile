@@ -15,9 +15,10 @@ import {
   useFonts,
 } from '@expo-google-fonts/poppins'
 
-interface ExtendedUser extends User {
+interface ExtendedUser extends Omit<User, 'role'> {
   avatar_path?: string
   points?: string
+  role: string
 }
 
 interface WasteStats {
@@ -86,7 +87,14 @@ export default function Home() {
     try {
       const user = await AsyncStorage.getItem('user')
       if (user) {
-        setUserData(JSON.parse(user))
+        const parsedUser = JSON.parse(user)
+        setUserData(parsedUser)
+        
+        // Redirect ke halaman collector jika user adalah collector
+        if (parsedUser.role === 'collector') {
+          router.replace('/collector')
+          return
+        }
       }
     } catch (error) {
       console.error('Gagal load user data:', error)

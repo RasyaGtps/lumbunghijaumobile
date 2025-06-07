@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, ScrollView, Image, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native'
+import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { API_URL, BASE_URL } from '../../../api/auth'
@@ -19,7 +19,7 @@ interface TransactionDetail {
   transaction_id: number
   category_id: number
   estimated_weight: string
-  actual_weight: string | null
+  actual_weight: string
   photo_path: string | null
   category: WasteCategory
 }
@@ -28,7 +28,7 @@ interface Transaction {
   id: number
   user: {
     name: string
-    avatar_path: string | null
+    avatar: string | null
   }
   pickup_location: string
   total_weight: string
@@ -39,13 +39,11 @@ interface Transaction {
   details: TransactionDetail[]
 }
 
-export default function VerifyDetail() {
+export default function HistoryDetail() {
   const { id } = useLocalSearchParams()
   const router = useRouter()
   const [transaction, setTransaction] = useState<Transaction | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [actualWeights, setActualWeights] = useState<number[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     loadTransaction()
@@ -72,23 +70,12 @@ export default function VerifyDetail() {
 
       if (data.status && data.data) {
         setTransaction(data.data)
-        // Pre-fill dengan estimated weight
-        setActualWeights(data.data.details.map(item => parseFloat(item.estimated_weight) || 0))
       }
     } catch (error) {
       console.error('❌ Failed to load transaction:', error)
-      Alert.alert('Error', 'Gagal memuat data transaksi')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const formatPrice = (price: string | number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(Number(price))
   }
 
   const formatDate = (dateString: string) => {
@@ -101,57 +88,11 @@ export default function VerifyDetail() {
     })
   }
 
-  const handleSubmitVerification = async () => {
-    try {
-      setIsSubmitting(true)
-      const token = await AsyncStorage.getItem('token')
-      if (!token) {
-        router.replace('/login')
-        return
-      }
-
-      const response = await fetch(`${API_URL}/transactions/verify/${id}/submit`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          actualWeights: actualWeights
-        })
-      })
-
-      const data = await response.json()
-      console.log('Verification response:', data)
-
-      if (data.status) {
-        Alert.alert(
-          'Sukses',
-          'Verifikasi berhasil',
-          [
-            {
-              text: 'OK',
-              onPress: () => router.back()
-            }
-          ]
-        )
-      } else {
-        Alert.alert('Error', data.message || 'Gagal memverifikasi transaksi')
-      }
-    } catch (error) {
-      console.error('Error submitting verification:', error)
-      Alert.alert('Error', 'Terjadi kesalahan saat memverifikasi transaksi')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   if (isLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: '#f8f9fa' }}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#3b82f6" />
+          <ActivityIndicator size="large" color="#10b981" />
         </View>
         <CollectorNavbar />
       </View>
@@ -175,7 +116,7 @@ export default function VerifyDetail() {
             onPress={() => router.back()}
             style={{
               marginTop: 20,
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#10b981',
               paddingVertical: 8,
               paddingHorizontal: 16,
               borderRadius: 8
@@ -231,7 +172,7 @@ export default function VerifyDetail() {
               fontWeight: 'bold',
               color: '#1f2937'
             }}>
-              Detail Transaksi
+              Detail Verifikasi
             </Text>
           </View>
 
@@ -254,9 +195,9 @@ export default function VerifyDetail() {
               alignItems: 'center',
               marginBottom: 12
             }}>
-              {transaction.user.avatar_path ? (
+              {transaction.user.avatar ? (
                 <Image 
-                  source={{ uri: `${BASE_URL}${transaction.user.avatar_path}` }}
+                  source={{ uri: `${BASE_URL}${transaction.user.avatar}` }}
                   style={{ 
                     width: 48, 
                     height: 48, 
@@ -317,7 +258,7 @@ export default function VerifyDetail() {
             </View>
           </View>
 
-          {/* Weight Input */}
+          {/* Detail Sampah */}
           <View style={{
             backgroundColor: 'white',
             borderRadius: 12,
@@ -340,31 +281,8 @@ export default function VerifyDetail() {
               Detail Sampah
             </Text>
 
-            {/* Foto Sampah */}
-            {transaction.image_path && (
-              <View style={{
-                borderWidth: 1,
-                borderColor: '#e5e7eb',
-                borderRadius: 8,
-                height: 200,
-                overflow: 'hidden',
-                backgroundColor: '#f9fafb',
-                marginBottom: 16
-              }}>
-                <Image
-                  source={{ uri: `${BASE_URL}${transaction.image_path}` }}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 8
-                  }}
-                  resizeMode="contain"
-                />
-              </View>
-            )}
-
             {/* List Sampah */}
-            {transaction.details.map((item, index) => (
+            {transaction.details.map((item) => (
               <View key={item.id} style={{
                 borderWidth: 1,
                 borderColor: '#e5e7eb',
@@ -428,38 +346,20 @@ export default function VerifyDetail() {
 
                   <View style={{ alignItems: 'flex-end' }}>
                     <Text style={{ color: '#6b7280', marginBottom: 2 }}>Berat Akhir</Text>
-                    <TextInput
-                      style={{
-                        borderWidth: 1,
-                        borderColor: '#e5e7eb',
-                        borderRadius: 6,
-                        paddingHorizontal: 8,
-                        paddingVertical: 4,
-                        minWidth: 80,
-                        textAlign: 'center',
-                        backgroundColor: 'white'
-                      }}
-                      value={actualWeights[index]?.toString() || item.estimated_weight}
-                      onChangeText={(value) => {
-                        const newWeights = [...actualWeights];
-                        newWeights[index] = parseFloat(value) || 0;
-                        setActualWeights(newWeights);
-                      }}
-                      keyboardType="decimal-pad"
-                      placeholder="0.0"
-                    />
+                    <Text style={{ fontWeight: '600', color: '#059669' }}>
+                      {parseFloat(item.actual_weight)} kg
+                    </Text>
                   </View>
                 </View>
               </View>
             ))}
           </View>
 
-          {/* Price Info */}
+          {/* Total */}
           <View style={{
             backgroundColor: 'white',
             borderRadius: 12,
             padding: 16,
-            marginBottom: 24,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 1 },
             shadowOpacity: 0.1,
@@ -474,7 +374,7 @@ export default function VerifyDetail() {
               color: '#111827',
               marginBottom: 16
             }}>
-              Rincian Harga
+              Total
             </Text>
 
             <View style={{ 
@@ -482,20 +382,9 @@ export default function VerifyDetail() {
               justifyContent: 'space-between',
               marginBottom: 8
             }}>
-              <Text style={{ color: '#6b7280' }}>Total Berat Awal</Text>
+              <Text style={{ color: '#6b7280' }}>Total Berat</Text>
               <Text style={{ fontWeight: '600', color: '#111827' }}>
                 {parseFloat(transaction.total_weight)} kg
-              </Text>
-            </View>
-
-            <View style={{ 
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 8
-            }}>
-              <Text style={{ color: '#6b7280' }}>Total Berat Akhir</Text>
-              <Text style={{ fontWeight: '600', color: '#059669' }}>
-                {actualWeights.reduce((sum, weight) => sum + (weight || 0), 0)} kg
               </Text>
             </View>
 
@@ -507,44 +396,15 @@ export default function VerifyDetail() {
               borderTopColor: '#f3f4f6'
             }}>
               <Text style={{ color: '#6b7280' }}>Total Harga</Text>
-              <Text style={{ fontWeight: '600', color: '#059669' }}>
-                {formatPrice(actualWeights.reduce((sum, weight, index) => {
-                  return sum + (weight || 0) * Number(transaction.details[index].category.price_per_kg);
-                }, 0))}
+              <Text style={{ fontWeight: '600', color: '#059669', fontSize: 16 }}>
+                Rp {parseInt(transaction.total_price).toLocaleString('id-ID')}
               </Text>
             </View>
           </View>
-
-          {/* Submit Button */}
-          <TouchableOpacity
-            onPress={handleSubmitVerification}
-            disabled={isSubmitting}
-            style={{
-              backgroundColor: isSubmitting ? '#93c5fd' : '#3b82f6',
-              paddingVertical: 12,
-              borderRadius: 8,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            {isSubmitting ? (
-              <>
-                <ActivityIndicator size="small" color="white" style={{ marginRight: 8 }} />
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-                  Memproses...
-                </Text>
-              </>
-            ) : (
-              <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-                Verifikasi Transaksi
-              </Text>
-            )}
-          </TouchableOpacity>
         </View>
       </ScrollView>
 
       <CollectorNavbar />
     </View>
   )
-}
+} 

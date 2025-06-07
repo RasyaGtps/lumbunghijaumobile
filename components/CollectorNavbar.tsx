@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { useRouter, usePathname } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { memo } from 'react'
+import { Ionicons } from '@expo/vector-icons'
 
 type NavPath = '/collector' | '/collector/verify' | '/collector/history' | '/collector/profile'
 
@@ -20,15 +21,15 @@ const CollectorNavbar = memo(() => {
   const getIcon = (label: string) => {
     switch (label) {
       case 'home':
-        return '🏠'
+        return <Ionicons name="home-outline" size={24} color={pathname === '/collector' ? '#10b981' : '#6b7280'} />
       case 'verify':
-        return '✅'
+        return <Ionicons name="checkmark-circle-outline" size={24} color={pathname === '/collector/verify' ? '#10b981' : '#6b7280'} />
       case 'history':
-        return '📋'
+        return <Ionicons name="document-text-outline" size={24} color={pathname === '/collector/history' ? '#10b981' : '#6b7280'} />
       case 'profile':
-        return '👤'
+        return <Ionicons name="person-outline" size={24} color={pathname === '/collector/profile' ? '#10b981' : '#6b7280'} />
       default:
-        return '📱'
+        return <Ionicons name="apps-outline" size={24} color="#6b7280" />
     }
   }
 
@@ -70,7 +71,7 @@ const CollectorNavbar = memo(() => {
               opacity: pathname === item.path ? 1 : 0.5
             }}
           >
-            <Text style={{ fontSize: 20 }}>{getIcon(item.label)}</Text>
+            {getIcon(item.label)}
             <Text style={{ 
               fontSize: 12, 
               marginTop: 4,

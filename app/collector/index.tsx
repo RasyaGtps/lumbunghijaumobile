@@ -4,6 +4,7 @@ import { Image, ScrollView, Text, View } from 'react-native'
 import { BASE_URL } from '../../api/auth'
 import CollectorNavbar from '../../components/CollectorNavbar'
 import { User } from '../../types'
+import { useRouter } from 'expo-router'
 
 interface ExtendedUser extends User {
   avatar_path?: string
@@ -13,19 +14,28 @@ interface ExtendedUser extends User {
 export default function CollectorHome() {
   const [userData, setUserData] = useState<ExtendedUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   const loadUserData = useCallback(async () => {
     try {
       const user = await AsyncStorage.getItem('user')
       if (user) {
-        setUserData(JSON.parse(user))
+        const parsedUser = JSON.parse(user)
+        
+        // Redirect ke halaman user jika bukan collector
+        if (parsedUser.role !== 'collector') {
+          router.replace('/')
+          return
+        }
+        
+        setUserData(parsedUser)
       }
     } catch (error) {
       console.error('Gagal load user data:', error)
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [router])
 
   useEffect(() => {
     loadUserData()
