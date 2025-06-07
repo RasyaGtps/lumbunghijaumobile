@@ -76,11 +76,11 @@ export default function Register() {
     setLoading(true);
     try {
       const response = await registerUser(formData);
-          if (response.status) {
-      router.replace('/register-success');
-    } else {
-      Alert.alert('Error', response.message || 'Registrasi gagal');
-          }
+      if (response.status) {
+        router.replace('/register-success');
+      } else {
+        Alert.alert('Error', response.message || 'Registrasi gagal');
+      }
     } catch (error) {
       console.error('Registration error:', error);
       Alert.alert('Error', 'Terjadi kesalahan saat registrasi');

@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Stack, useRouter } from 'expo-router'
-import * as SplashScreen from 'expo-splash-screen'
+import { SplashScreen, Stack, useRouter, useSegments } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { API_URL } from '../api/auth'
 
@@ -8,6 +7,7 @@ import { API_URL } from '../api/auth'
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
+  const segments = useSegments()
   const router = useRouter()
   const [appIsReady, setAppIsReady] = useState(false)
   const [initialRoute, setInitialRoute] = useState<string | null>(null)
@@ -16,9 +16,8 @@ export default function RootLayout() {
     const prepare = async () => {
       try {
         const token = await AsyncStorage.getItem('token')
-
         if (!token) {
-          setInitialRoute('/login')
+          router.replace('/login')
           return
         }
 
@@ -33,15 +32,17 @@ export default function RootLayout() {
 
         if (!response.ok || !data.status || !data.data?.user) {
           await AsyncStorage.multiRemove(['token', 'user'])
-          setInitialRoute('/login')
+          router.replace('/login')
           return
         }
 
-        await AsyncStorage.setItem('user', JSON.stringify(data.data.user))
-        setInitialRoute('/')
+        if (data.status && data.data?.user) {
+          await AsyncStorage.setItem('user', JSON.stringify(data.data.user))
+          router.replace('/')
+        }
       } catch (error) {
         await AsyncStorage.multiRemove(['token', 'user'])
-        setInitialRoute('/login')
+        router.replace('/login')
       } finally {
         setAppIsReady(true)
       }
@@ -51,17 +52,10 @@ export default function RootLayout() {
   }, [])
 
   useEffect(() => {
-    const runAfterSplash = async () => {
-      if (appIsReady && initialRoute !== null) {
-        // Tunggu sedikit supaya splash kelihatan (opsional, misalnya 300ms)
-        await new Promise(resolve => setTimeout(resolve, 300))
-        await SplashScreen.hideAsync()
-        router.replace(initialRoute)
-      }
+    if (appIsReady) {
+      SplashScreen.hideAsync()
     }
-
-    runAfterSplash()
-  }, [appIsReady, initialRoute])
+  }, [appIsReady])
 
   return (
     <Stack

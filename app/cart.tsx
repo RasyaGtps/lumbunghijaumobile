@@ -213,7 +213,7 @@ export default function Cart() {
           [
             { 
               text: 'OK', 
-              onPress: () => router.replace('/waste-categories')
+              onPress: () => router.replace(`/transaction/${data.data.id}`)
             }
           ]
         )
@@ -249,7 +249,7 @@ export default function Cart() {
         },
         body: JSON.stringify({ 
           detailId,
-          estimatedWeight: parseFloat(newWeight)
+          estimatedWeight: parseInt(newWeight)
         })
       })
 
@@ -445,7 +445,7 @@ export default function Cart() {
                     <Text style={{ fontSize: 24 }}>📷</Text>
                   </View>
                 )}
-    <View style={{ flex: 1 }}>
+                <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '500' }}>{item.category.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                     <View style={{ 
@@ -474,10 +474,10 @@ export default function Cart() {
                 }}>
                   <TouchableOpacity 
                     onPress={() => {
-                      const currentWeight = parseFloat(item.estimated_weight)
-                      if (!isNaN(currentWeight) && currentWeight > 0.1) {
-                        const newWeight = (currentWeight - 0.1).toFixed(1)
-                        handleUpdateWeight(item.id, newWeight)
+                      const currentWeight = parseInt(item.estimated_weight)
+                      if (!isNaN(currentWeight) && currentWeight > 1) {
+                        const newWeight = currentWeight - 1
+                        handleUpdateWeight(item.id, String(newWeight))
                       }
                     }}
                     style={{
@@ -496,17 +496,17 @@ export default function Cart() {
                     alignItems: 'center'
                   }}>
                     <Text style={{ fontSize: 14, color: '#374151' }}>
-                      {parseFloat(item.estimated_weight).toFixed(1)}
+                      {parseInt(item.estimated_weight)}
                     </Text>
                     <Text style={{ fontSize: 12, color: '#6b7280' }}>kg</Text>
                   </View>
 
                   <TouchableOpacity 
                     onPress={() => {
-                      const currentWeight = parseFloat(item.estimated_weight)
+                      const currentWeight = parseInt(item.estimated_weight)
                       if (!isNaN(currentWeight)) {
-                        const newWeight = (currentWeight + 0.1).toFixed(1)
-                        handleUpdateWeight(item.id, newWeight)
+                        const newWeight = currentWeight + 1
+                        handleUpdateWeight(item.id, String(newWeight))
                       }
                     }}
                     style={{
@@ -553,14 +553,19 @@ export default function Cart() {
                 height: 200,
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: '#f9fafb'
+                backgroundColor: '#f9fafb',
+                overflow: 'hidden'
               }}
             >
               {photo ? (
                 <Image 
                   source={{ uri: photo }} 
-                  style={{ width: '100%', height: '100%', borderRadius: 8 }}
-                  resizeMode="cover"
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    borderRadius: 8,
+                  }}
+                  resizeMode="contain"
                 />
               ) : (
                 <Fragment>

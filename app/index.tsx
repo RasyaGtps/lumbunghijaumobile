@@ -4,6 +4,7 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacit
 import { BASE_URL } from '../api/auth'
 import CustomNavbar from '../components/CustomNavbar'
 import { User } from '../types'
+import { useRouter } from 'expo-router'
 
 import {
   Poppins_400Regular,
@@ -14,15 +15,16 @@ import {
   useFonts,
 } from '@expo-google-fonts/poppins'
 
-interface ExtendedUser extends User {
+interface ExtendedUser extends Omit<User, 'role'> {
   avatar_path?: string
   points?: string
+  role: string
 }
 
 interface WasteStats {
   totalWeight: number
-  deposits: number
-  selections: number
+  pending: number
+  completed: number
 }
 
 interface Article {
@@ -37,8 +39,8 @@ export default function Home() {
   const [userData, setUserData] = useState<ExtendedUser | null>(null)
   const [wasteStats, setWasteStats] = useState<WasteStats>({
     totalWeight: 30,
-    deposits: 0,
-    selections: 0
+    pending: 0,
+    completed: 0
   })
 
   const [articles] = useState<Article[]>([
@@ -74,18 +76,59 @@ export default function Home() {
     Poppins_700Bold_Italic
   })
 
+  const router = useRouter()
+
   useEffect(() => {
     loadUserData()
+    fetchTransactionStats()
   }, [])
 
   const loadUserData = async () => {
     try {
       const user = await AsyncStorage.getItem('user')
       if (user) {
-        setUserData(JSON.parse(user))
+        const parsedUser = JSON.parse(user)
+        setUserData(parsedUser)
+        
+        // Redirect ke halaman collector jika user adalah collector
+        if (parsedUser.role === 'collector') {
+          router.replace('/collector')
+          return
+        }
       }
     } catch (error) {
       console.error('Gagal load user data:', error)
+    }
+  }
+
+  const fetchTransactionStats = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token')
+      if (!token) return
+
+      const response = await fetch(`${BASE_URL}/api/transactions/user`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+      if (data.status) {
+        const transactions = data.data
+        const totalWeight = transactions.reduce((sum: number, t: any) => sum + parseFloat(t.total_weight), 0)
+        const completed = transactions.filter((t: any) => t.status === 'verified').length
+        const pending = transactions.filter((t: any) => t.status === 'pending').length
+
+        setWasteStats({
+          totalWeight,
+          pending,
+          completed
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error)
     }
   }
 
@@ -157,7 +200,10 @@ export default function Home() {
                 />
                 <Text style={styles.balanceLabel}>Saldo anda</Text>
               </View>
-              <TouchableOpacity style={styles.withdrawButton}>
+              <TouchableOpacity 
+                style={styles.withdrawButton}
+                onPress={() => router.push('/withdraw')}
+              >
                 <Text style={styles.withdrawText}>Tarik saldo</Text>
                 <Image 
                   source={require('../assets/images/icon/tarik-saldo.png')} 
@@ -178,12 +224,12 @@ export default function Home() {
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>{wasteStats.deposits}</Text>
-                <Text style={styles.statLabel}>Penarikan</Text>
+                <Text style={styles.statValue}>{wasteStats.pending}</Text>
+                <Text style={styles.statLabel}>Dalam Proses</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statItem}>
-                <Text style={styles.statValue}>{wasteStats.selections}</Text>
+                <Text style={styles.statValue}>{wasteStats.completed}</Text>
                 <Text style={styles.statLabel}>Selesai</Text>
               </View>
             </View>

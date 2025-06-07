@@ -45,6 +45,7 @@ export default function CustomNavbar() {
       shadowOpacity: 0.1,
       shadowRadius: 3,
       elevation: 5,
+      zIndex: 1000,
     }}>
       <View style={{
         flexDirection: 'row',
@@ -55,7 +56,7 @@ export default function CustomNavbar() {
         {navItems.map((item) => (
           <TouchableOpacity
             key={item.path}
-            onPress={() => router.push(item.path)}
+            onPress={() => router.replace(item.path)}
             style={{
               alignItems: 'center',
               opacity: pathname === item.path ? 1 : 0.5
