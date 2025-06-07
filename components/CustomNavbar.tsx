@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity } from 'react-native'
-import { useRouter, usePathname } from 'expo-router'
+import { usePathname, useRouter } from 'expo-router'
+import { Image, Text, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function CustomNavbar() {
@@ -10,7 +10,7 @@ export default function CustomNavbar() {
   const navItems = [
     { path: '/' as const, label: 'home', title: 'Home' },
     { path: '/pesanan' as const, label: 'pesanan', title: 'Pesanan' },
-    { path: '/waste-categories' as const, label: 'mulai', title: 'Mulai' },
+    { path: '/waste-categories' as const, label: 'mulai', title: 'Jual' },
     { path: '/cart' as const, label: 'keranjang', title: 'Keranjang' },
     { path: '/profile' as const, label: 'profil', title: 'Profil' }
   ]
@@ -18,17 +18,17 @@ export default function CustomNavbar() {
   const getIcon = (label: string) => {
     switch (label) {
       case 'home':
-        return '🏠'
+        return require('../assets/images/icon/home-icon.png')
       case 'pesanan':
-        return '📋'
+        return require('../assets/images/icon/pesanan-icon.png')
       case 'mulai':
-        return '♻️'
+        return require('../assets/images/icon/jual-icon.png')
       case 'keranjang':
-        return '🛒'
+        return require('../assets/images/icon/keranjang-icon.png')
       case 'profil':
-        return '👤'
+        return require('../assets/images/icon/profile-icon.png')
       default:
-        return '📱'
+        return require('../assets/images/icon/handphone.png')
     }
   }
 
@@ -41,10 +41,7 @@ export default function CustomNavbar() {
       backgroundColor: 'white',
       borderRadius: 30,
       shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
+      shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 3,
       elevation: 5,
@@ -65,10 +62,18 @@ export default function CustomNavbar() {
               opacity: pathname === item.path ? 1 : 0.5
             }}
           >
-            <Text style={{ fontSize: 20 }}>{getIcon(item.label)}</Text>
-            <Text style={{ 
-              fontSize: 12, 
-              marginTop: 4,
+            <Image
+              source={getIcon(item.label)}
+              style={{
+                width: 24,
+                height: 24,
+                marginBottom: 4,
+                tintColor: pathname === item.path ? '#10b981' : '#6b7280'
+              }}
+              resizeMode="contain"
+            />
+            <Text style={{
+              fontSize: 12,
               color: pathname === item.path ? '#10b981' : '#6b7280',
               fontWeight: pathname === item.path ? '600' : '400'
             }}>
