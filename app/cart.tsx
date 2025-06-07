@@ -213,7 +213,7 @@ export default function Cart() {
           [
             { 
               text: 'OK', 
-              onPress: () => router.replace('/waste-categories')
+              onPress: () => router.replace(`/transaction/${data.data.id}`)
             }
           ]
         )
@@ -445,7 +445,7 @@ export default function Cart() {
                     <Text style={{ fontSize: 24 }}>📷</Text>
                   </View>
                 )}
-    <View style={{ flex: 1 }}>
+                <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '500' }}>{item.category.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                     <View style={{ 
@@ -553,14 +553,19 @@ export default function Cart() {
                 height: 200,
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: '#f9fafb'
+                backgroundColor: '#f9fafb',
+                overflow: 'hidden'
               }}
             >
               {photo ? (
                 <Image 
                   source={{ uri: photo }} 
-                  style={{ width: '100%', height: '100%', borderRadius: 8 }}
-                  resizeMode="cover"
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    borderRadius: 8,
+                  }}
+                  resizeMode="contain"
                 />
               ) : (
                 <Fragment>

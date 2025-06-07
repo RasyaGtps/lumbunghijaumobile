@@ -120,7 +120,8 @@ const styles = StyleSheet.create({
   continueButton: {
     backgroundColor: '#22C55E',
     paddingVertical: 16,
-    paddingHorizontal: 120,
+    width: '100%',
+    maxWidth: 320,
     borderRadius: 12,
     shadowColor: '#22C55E',
     shadowOffset: {

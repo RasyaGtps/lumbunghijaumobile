@@ -21,14 +21,14 @@ export default function RootLayout() {
           return
         }
 
-      const response = await fetch(`${API_URL}/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      })
+        const response = await fetch(`${API_URL}/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        })
 
-      const data = await response.json()
+        const data = await response.json()
 
         if (!response.ok || !data.status || !data.data?.user) {
           await AsyncStorage.multiRemove(['token', 'user'])
@@ -36,9 +36,10 @@ export default function RootLayout() {
           return
         }
 
-      if (data.status && data.data?.user) {
-        await AsyncStorage.setItem('user', JSON.stringify(data.data.user))
-        router.replace('/')
+        if (data.status && data.data?.user) {
+          await AsyncStorage.setItem('user', JSON.stringify(data.data.user))
+          router.replace('/')
+        }
       } catch (error) {
         await AsyncStorage.multiRemove(['token', 'user'])
         router.replace('/login')

@@ -76,24 +76,11 @@ export default function Register() {
     setLoading(true);
     try {
       const response = await registerUser(formData);
-<<<<<<< HEAD
       if (response.status) {
-        Alert.alert('Sukses', 'Registrasi berhasil, silahkan login', [
-          {
-            text: 'OK',
-            onPress: () => router.push('/login'),
-          },
-        ]);
+        router.replace('/register-success');
       } else {
         Alert.alert('Error', response.message || 'Registrasi gagal');
       }
-=======
-          if (response.status) {
-      router.replace('/register-success');
-    } else {
-      Alert.alert('Error', response.message || 'Registrasi gagal');
-          }
->>>>>>> 2108acd1887a2b5bb7ef71905b7fef6a8120a5d1
     } catch (error) {
       console.error('Registration error:', error);
       Alert.alert('Error', 'Terjadi kesalahan saat registrasi');

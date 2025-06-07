@@ -74,11 +74,10 @@ export default function Pesanan() {
       console.log('Transactions data:', data)
 
       if (data.status) {
-        // Filter transactions based on activeTab
         const filteredTransactions = data.data.filter((transaction: Transaction) => 
           activeTab === 'pending' ? 
-            ['pending', 'verified'].includes(transaction.status) : 
-            ['completed', 'rejected'].includes(transaction.status)
+            transaction.status === 'pending' : 
+            ['verified', 'rejected'].includes(transaction.status)
         )
         setTransactions(filteredTransactions || [])
         setError(null)
@@ -98,135 +97,86 @@ export default function Pesanan() {
     return date.toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     })
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return {
-          bg: '#FEF3C7',
-          text: '#D97706'
-        }
-      case 'verified':
-        return {
-          bg: '#DCFCE7',
-          text: '#15803D'
-        }
-      case 'completed':
-        return {
-          bg: '#DBEAFE',
-          text: '#1D4ED8'
-        }
-      case 'rejected':
-        return {
-          bg: '#FEE2E2',
-          text: '#DC2626'
-        }
-      default:
-        return {
-          bg: '#F3F4F6',
-          text: '#6B7280'
-        }
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Menunggu Verifikasi'
-      case 'verified':
-        return 'Terverifikasi'
-      case 'completed':
-        return 'Selesai'
-      case 'rejected':
-        return 'Ditolak'
-      default:
-        return status
-    }
   }
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#10b981" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#00A74F" />
       </View>
     )
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       
+      {/* Header */}
       <View style={{ 
-        backgroundColor: 'white',
+        backgroundColor: '#fff',
         paddingTop: insets.top || 5,
         borderBottomWidth: 1,
-        borderBottomColor: '#e5e7eb'
+        borderBottomColor: '#E5E7EB'
       }}>
         <Text style={{ 
           fontSize: 16, 
-          fontWeight: '600',
           textAlign: 'center',
           paddingVertical: 16
-        }}>Pesanan</Text>
+        }}>
+          Pesanan
+        </Text>
 
+        {/* Tabs */}
         <View style={{ 
-          flexDirection: 'row', 
-          borderBottomWidth: 1,
-          borderBottomColor: '#e5e7eb'
+          flexDirection: 'row',
+          paddingHorizontal: 16,
+          marginBottom: 8
         }}>
           <TouchableOpacity 
-            onPress={() => {
-              setActiveTab('pending')
-              setLoading(true)
-              fetchTransactions()
-            }}
+            onPress={() => setActiveTab('pending')}
             style={{ 
               flex: 1,
-              paddingVertical: 12,
+              paddingVertical: 8,
               borderBottomWidth: 2,
-              borderBottomColor: activeTab === 'pending' ? '#10b981' : 'transparent'
+              borderBottomColor: activeTab === 'pending' ? '#00A74F' : 'transparent'
             }}
           >
             <Text style={{ 
               textAlign: 'center',
-              color: activeTab === 'pending' ? '#10b981' : '#6b7280',
-              fontWeight: activeTab === 'pending' ? '600' : '400'
-            }}>Aktif</Text>
+              color: activeTab === 'pending' ? '#00A74F' : '#9CA3AF',
+            }}>
+              Dalam Proses
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            onPress={() => {
-              setActiveTab('history')
-              setLoading(true)
-              fetchTransactions()
-            }}
+            onPress={() => setActiveTab('history')}
             style={{ 
               flex: 1,
-              paddingVertical: 12,
+              paddingVertical: 8,
               borderBottomWidth: 2,
-              borderBottomColor: activeTab === 'history' ? '#10b981' : 'transparent'
+              borderBottomColor: activeTab === 'history' ? '#00A74F' : 'transparent'
             }}
           >
             <Text style={{ 
               textAlign: 'center',
-              color: activeTab === 'history' ? '#10b981' : '#6b7280',
-              fontWeight: activeTab === 'history' ? '600' : '400'
-            }}>Selesai</Text>
+              color: activeTab === 'history' ? '#00A74F' : '#9CA3AF',
+            }}>
+              Riwayat
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView 
-        style={{ flex: 1 }}
+        style={{ flex: 1, backgroundColor: '#F3F4F6' }}
         contentContainerStyle={{ 
-          padding: 16,
+          padding: 24,
           paddingBottom: 100
         }}
+        showsVerticalScrollIndicator={false}
       >
         {error ? (
           <View style={{ 
@@ -237,12 +187,9 @@ export default function Pesanan() {
           }}>
             <Text style={{ color: '#dc2626', marginBottom: 8 }}>{error}</Text>
             <TouchableOpacity 
-              onPress={() => {
-                setLoading(true)
-                fetchTransactions()
-              }}
+              onPress={fetchTransactions}
               style={{
-                backgroundColor: '#10b981',
+                backgroundColor: '#00A74F',
                 paddingHorizontal: 16,
                 paddingVertical: 8,
                 borderRadius: 8
@@ -261,12 +208,12 @@ export default function Pesanan() {
             <Ionicons 
               name="trash-bin-outline" 
               size={100} 
-              color="#6b7280"
+              color="#9CA3AF"
               style={{ marginBottom: 16 }}
             />
             <Text style={{ 
               fontSize: 16,
-              color: '#6b7280',
+              color: '#9CA3AF',
               marginBottom: 16,
               textAlign: 'center'
             }}>
@@ -277,7 +224,7 @@ export default function Pesanan() {
             <TouchableOpacity
               onPress={() => router.push('/waste-categories')}
               style={{
-                backgroundColor: '#10b981',
+                backgroundColor: '#00A74F',
                 paddingHorizontal: 16,
                 paddingVertical: 8,
                 borderRadius: 8
@@ -292,72 +239,82 @@ export default function Pesanan() {
               key={transaction.id}
               style={{
                 backgroundColor: 'white',
-                borderRadius: 8,
-                marginBottom: 16,
-                overflow: 'hidden'
+                borderRadius: 12,
+                marginBottom: 12,
+                padding: 16
               }}
             >
-              {/* Header */}
+              {/* Tanggal dan Status */}
               <View style={{ 
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                padding: 16,
-                borderBottomWidth: 1,
-                borderBottomColor: '#e5e7eb'
+                alignItems: 'center',
+                marginBottom: 16
               }}>
-                <Text style={{ fontSize: 14, color: '#6b7280' }}>
+                <Text style={{ color: '#6B7280' }}>
                   {formatDate(transaction.created_at)}
                 </Text>
                 <View style={{ 
-                  backgroundColor: getStatusColor(transaction.status).bg,
-                  paddingHorizontal: 8,
-                  paddingVertical: 2,
+                  backgroundColor: transaction.status === 'pending' ? '#FEF3C7' : 
+                                  transaction.status === 'verified' ? '#DCFCE7' : '#FEE2E2',
+                  paddingHorizontal: 12,
+                  paddingVertical: 4,
                   borderRadius: 12
                 }}>
                   <Text style={{ 
-                    color: getStatusColor(transaction.status).text, 
-                    fontSize: 12 
+                    fontSize: 12,
+                    color: transaction.status === 'pending' ? '#D97706' : 
+                            transaction.status === 'verified' ? '#15803D' : '#DC2626'
                   }}>
-                    {getStatusText(transaction.status)}
+                    {transaction.status === 'pending' ? 'Menunggu Picker' :
+                     transaction.status === 'verified' ? 'Selesai' : 'Ditolak'}
                   </Text>
                 </View>
               </View>
 
-              <View style={{ padding: 16 }}>
-                <View style={{ marginBottom: 12 }}>
-                  <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                    Lokasi Penjemputan
-                  </Text>
-                  <Text style={{ fontSize: 14 }}>{transaction.pickup_location}</Text>
-                </View>
-
-                <View style={{ marginBottom: 12 }}>
-                  <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                    Total Sampah
-                  </Text>
-                  <Text style={{ fontSize: 14 }}>{transaction.total_weight} kg</Text>
-                </View>
-
-                <View style={{ 
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingTop: 12,
-                  borderTopWidth: 1,
-                  borderTopColor: '#e5e7eb'
-                }}>
-                  <Text style={{ fontSize: 14, color: '#6b7280' }}>
-                    Estimasi Pendapatan
-                  </Text>
-                  <Text style={{ 
-                    fontSize: 16,
-                    fontWeight: '600',
-                    color: '#10b981'
-                  }}>
-                    Rp {parseInt(transaction.total_price).toLocaleString('id-ID')}
-                  </Text>
-                </View>
+              {/* Total Sampah */}
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ color: '#6B7280', marginBottom: 4 }}>
+                  Total sampah
+                </Text>
+                <Text style={{ fontSize: 16 }}>
+                  {parseFloat(transaction.total_weight)} kg
+                </Text>
               </View>
+
+              {/* Estimasi Pendapatan */}
+              <View style={{ 
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <Text style={{ color: '#6B7280' }}>
+                  Estimasi Pendapatan
+                </Text>
+                <Text style={{ color: '#00A74F', fontSize: 16 }}>
+                  Rp {parseInt(transaction.total_price).toLocaleString('id-ID')}
+                </Text>
+              </View>
+
+              {/* Tombol Cek Status */}
+              <TouchableOpacity
+                onPress={() => router.push({
+                  pathname: '/transaction/[id]',
+                  params: { id: transaction.id }
+                })}
+                style={{
+                  backgroundColor: '#00A74F',
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
+                  borderRadius: 8,
+                  alignSelf: 'flex-end',
+                  marginTop: 12
+                }}
+              >
+                <Text style={{ color: 'white', fontSize: 12 }}>
+                  Cek Status
+                </Text>
+              </TouchableOpacity>
             </View>
           ))
         )}

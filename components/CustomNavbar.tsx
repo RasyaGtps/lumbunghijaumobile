@@ -48,6 +48,7 @@ export default function CustomNavbar() {
       shadowOpacity: 0.1,
       shadowRadius: 3,
       elevation: 5,
+      zIndex: 1000,
     }}>
       <View style={{
         flexDirection: 'row',
