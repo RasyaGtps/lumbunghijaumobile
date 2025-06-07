@@ -208,40 +208,26 @@ export default function Profile() {
             <Ionicons name="chevron-forward" size={20} color="#6b7280" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            onPress={() => router.push('/withdrawal-history')}
+            style={styles.menuItem}
+          >
+            <View style={[styles.menuIconContainer, { backgroundColor: '#FEF3C7' }]}>
+              <Ionicons name="wallet" size={20} color="#F59E0B" />
+            </View>
+            <Text style={styles.menuText}>Riwayat Penarikan</Text>
+            <Ionicons name="chevron-forward" size={20} color="#6b7280" />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            onPress={() => router.push('/version')}
+            style={styles.menuItem}
+          >
             <View style={[styles.menuIconContainer, { backgroundColor: '#F3E5F5' }]}>
-              <Ionicons name="settings" size={20} color="#9C27B0" />
+              <Ionicons name="information-circle" size={20} color="#9C27B0" />
             </View>
-            <Text style={styles.menuText}>Pengaturan Aplikasi</Text>
+            <Text style={styles.menuText}>Versi Aplikasi</Text>
             <Ionicons name="chevron-forward" size={20} color="#6b7280" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={[styles.menuIconContainer, { backgroundColor: '#FFF3E0' }]}>
-              <Ionicons name="headset" size={20} color="#FF9800" />
-            </View>
-            <Text style={styles.menuText}>Layanan Pelanggan</Text>
-            <Ionicons name="chevron-forward" size={20} color="#6b7280" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={[styles.menuIconContainer, { backgroundColor: '#FBE9E7' }]}>
-              <Ionicons name="star" size={20} color="#FF5722" />
-            </View>
-            <Text style={styles.menuText}>Beri Rating</Text>
-            <Ionicons name="chevron-forward" size={20} color="#6b7280" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.socialSection}>
-          <TouchableOpacity style={styles.socialIcon}>
-            <Ionicons name="camera" size={24} color="#6b7280" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialIcon}>
-            <Ionicons name="people" size={24} color="#6b7280" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialIcon}>
-            <Ionicons name="musical-notes" size={24} color="#6b7280" />
           </TouchableOpacity>
         </View>
 
@@ -306,7 +292,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 120,
+    paddingBottom: 90,
   },
   headerGradient: {
     paddingTop: 60,
@@ -386,21 +372,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     fontSize: 15,
   },
-  socialSection: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    gap: 20,
-  },
-  socialIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#f3f4f6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   infoSection: {
     backgroundColor: '#fff',
     marginTop: 8,
@@ -437,7 +408,7 @@ const styles = StyleSheet.create({
     elevation: 8,
     marginHorizontal: 16,
     marginTop: 16,
-    marginBottom: 100,
+    marginBottom: 70,
   },
   logoutButtonDisabled: {
     backgroundColor: '#f87171',
