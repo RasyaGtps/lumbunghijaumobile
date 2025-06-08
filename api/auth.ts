@@ -1,5 +1,5 @@
-export const API_URL = 'http://192.168.168.66:8000/api'
-export const BASE_URL = 'http://192.168.168.66:8000'
+export const API_URL = 'http://192.168.18.143:8000/api'
+export const BASE_URL = 'http://192.168.18.143:8000'
 
 export interface LoginInput {
   login: string
