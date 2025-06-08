@@ -31,9 +31,11 @@ const { width, height } = Dimensions.get('window');
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    login: '',
+    password: '',
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -95,37 +97,40 @@ export default function Login() {
   }
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Semua field harus diisi');
+    if (!formData.login || !formData.password) {
+      Alert.alert('Error', 'Email dan password harus diisi');
       return;
     }
 
     setLoading(true);
-
     try {
-      const response = await loginUser({ login: email, password });
+      console.log('Mencoba login dengan:', formData);
+      const response = await loginUser(formData);
+      console.log('Response login:', response);
 
       if (response.status && response.data) {
+        // Simpan token
         await AsyncStorage.setItem('token', response.data.token);
-        await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
         
-        // Redirect berdasarkan role
-        if (response.data.user.role === 'collector') {
-          router.replace('/collector');
+        // Cek status verifikasi email
+        if (!response.data.user.email_verified) {
+          console.log('Email belum terverifikasi, mengarahkan ke halaman OTP');
+          router.replace('/verify-otp');
         } else {
+          console.log('Login berhasil, mengarahkan ke home');
           router.replace('/');
         }
       } else {
-        Alert.alert('Error', response.message || 'Login gagal');
+        Alert.alert('Error', response.message || 'Gagal login');
       }
     } catch (error) {
+      console.error('Error saat login:', error);
       Alert.alert('Error', 'Terjadi kesalahan saat login');
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
-  const isFormValid = email.length > 0 && password.length > 0;
+  const isFormValid = formData.login.length > 0 && formData.password.length > 0;
 
   return (
     <View style={styles.container}>
@@ -204,22 +209,22 @@ export default function Login() {
               <View style={styles.welcomeCard}>
                 <View style={styles.titleSection}>
                   <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>
-                    Selamat Datang! 👋
+                    Masuk
                   </Text>
                   <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>
-                    Masuk untuk melanjutkan ke akun Anda
+                    Masukkan email dan password Anda
                   </Text>
                 </View>
 
                 {/* Email Input */}
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { fontFamily: 'Poppins_400Regular' }]}>
-                    Alamat Email
+                    Email
                   </Text>
                   <View style={[
                     styles.inputContainer,
                     emailFocused && styles.inputContainerFocused,
-                    email.length > 0 && styles.inputContainerFilled
+                    formData.login.length > 0 && styles.inputContainerFilled
                   ]}>
                     <LinearGradient
                       colors={emailFocused ? ['#E8F5E8', '#F1F8E9'] : ['#FAFAFA', '#FAFAFA']}
@@ -233,8 +238,8 @@ export default function Login() {
                       />
                       <TextInput
                         placeholder="Masukkan email Anda"
-                        value={email}
-                        onChangeText={setEmail}
+                        value={formData.login}
+                        onChangeText={(text) => setFormData({ ...formData, login: text })}
                         onFocus={() => setEmailFocused(true)}
                         onBlur={() => setEmailFocused(false)}
                         style={[styles.input, { fontFamily: 'Poppins_400Regular' }]}
@@ -243,7 +248,7 @@ export default function Login() {
                         editable={!loading}
                         placeholderTextColor="#9E9E9E"
                       />
-                      {email.length > 0 && (
+                      {formData.login.length > 0 && (
                         <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
                       )}
                     </LinearGradient>
@@ -253,12 +258,12 @@ export default function Login() {
                 {/* Password Input */}
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { fontFamily: 'Poppins_400Regular' }]}>
-                    Kata Sandi
+                    Password
                   </Text>
                   <View style={[
                     styles.inputContainer,
                     passwordFocused && styles.inputContainerFocused,
-                    password.length > 0 && styles.inputContainerFilled
+                    formData.password.length > 0 && styles.inputContainerFilled
                   ]}>
                     <LinearGradient
                       colors={passwordFocused ? ['#E8F5E8', '#F1F8E9'] : ['#FAFAFA', '#FAFAFA']}
@@ -272,8 +277,8 @@ export default function Login() {
                       />
                       <TextInput
                         placeholder="Masukkan kata sandi"
-                        value={password}
-                        onChangeText={setPassword}
+                        value={formData.password}
+                        onChangeText={(text) => setFormData({ ...formData, password: text })}
                         onFocus={() => setPasswordFocused(true)}
                         onBlur={() => setPasswordFocused(false)}
                         secureTextEntry={!showPassword}

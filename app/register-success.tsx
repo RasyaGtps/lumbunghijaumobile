@@ -26,11 +26,11 @@ export default function RegisterSuccessScreen() {
       />
       
       <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>
-        Akun Berhasil ditambahkan
+        Email Berhasil Diverifikasi
       </Text>
       
       <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>
-        Ayo kita mulai kurangi limbah{'\n'}makanan mulai sekarang!
+        Selamat! Akun Anda telah aktif.{'\n'}Ayo kita mulai kurangi limbah makanan!
       </Text>
       
       <TouchableOpacity 

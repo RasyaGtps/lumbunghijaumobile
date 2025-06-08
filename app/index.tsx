@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useRouter } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useRouter, useFocusEffect } from 'expo-router'
+import { useEffect, useState, useCallback } from 'react'
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { BASE_URL } from '../api/auth'
 import CustomNavbar from '../components/CustomNavbar'
@@ -42,6 +42,7 @@ export default function Home() {
     pending: 0,
     completed: 0
   })
+  const [isLoading, setIsLoading] = useState(true)
 
   const [articles] = useState<Article[]>([
     {
@@ -78,58 +79,80 @@ export default function Home() {
 
   const router = useRouter()
 
-  useEffect(() => {
-    loadUserData()
-    fetchTransactionStats()
-  }, [])
+  // Refresh data when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      const refreshData = async () => {
+        setIsLoading(true)
+        try {
+          const token = await AsyncStorage.getItem('token')
+          if (!token) {
+            router.replace('/login')
+            return
+          }
 
-  const loadUserData = async () => {
-    try {
-      const user = await AsyncStorage.getItem('user')
-      if (user) {
-        const parsedUser = JSON.parse(user)
-        setUserData(parsedUser)
-        
-        // Redirect ke halaman collector jika user adalah collector
-        if (parsedUser.role === 'collector') {
-          router.replace('/collector')
-          return
+          // Get fresh user data from API
+          const userResponse = await fetch(`${BASE_URL}/api/profile`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          })
+
+          const userData = await userResponse.json()
+          if (userData.status && userData.data?.user) {
+            console.log('Setting fresh user data:', userData.data.user)
+            setUserData(userData.data.user)
+            await AsyncStorage.setItem('user', JSON.stringify(userData.data.user))
+
+            // Redirect ke halaman collector jika user adalah collector
+            if (userData.data.user.role === 'collector') {
+              router.replace('/collector')
+              return
+            }
+          }
+
+          // Get fresh transaction stats
+          const statsResponse = await fetch(`${BASE_URL}/api/transactions/user`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          })
+
+          const statsData = await statsResponse.json()
+          if (statsData.status) {
+            const transactions = statsData.data
+            const totalWeight = transactions.reduce((sum: number, t: any) => sum + parseFloat(t.total_weight || 0), 0)
+            const completed = transactions.filter((t: any) => t.status === 'verified').length
+            const pending = transactions.filter((t: any) => t.status === 'pending').length
+
+            console.log('Setting fresh stats:', { totalWeight, completed, pending })
+            setWasteStats({
+              totalWeight,
+              pending,
+              completed
+            })
+          }
+        } catch (error) {
+          console.error('Error refreshing data:', error)
+        } finally {
+          setIsLoading(false)
         }
       }
-    } catch (error) {
-      console.error('Gagal load user data:', error)
-    }
-  }
 
-  const fetchTransactionStats = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token')
-      if (!token) return
+      refreshData()
+    }, [])
+  )
 
-      const response = await fetch(`${BASE_URL}/api/transactions/user`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-
-      const data = await response.json()
-      if (data.status) {
-        const transactions = data.data
-        const totalWeight = transactions.reduce((sum: number, t: any) => sum + parseFloat(t.total_weight), 0)
-        const completed = transactions.filter((t: any) => t.status === 'verified').length
-        const pending = transactions.filter((t: any) => t.status === 'pending').length
-
-        setWasteStats({
-          totalWeight,
-          pending,
-          completed
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error)
-    }
+  // Show loading indicator while refreshing
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
+        <ActivityIndicator size="large" color="#22C55E" />
+      </View>
+    )
   }
 
   const formatCurrency = (amount: string | number) => {

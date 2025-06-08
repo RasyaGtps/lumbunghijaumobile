@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { RegisterInput, registerUser } from '../api/auth'; // sesuaikan path
 
@@ -105,18 +106,39 @@ export default function Register() {
 
     setLoading(true);
     try {
+      console.log('Mengirim data registrasi:', formData);
       const response = await registerUser(formData);
-      if (response.status) {
-        router.replace('/register-success');
+      console.log('Response dari server:', response);
+      
+      if (response.status && response.data?.access_token) {
+        console.log('Registrasi berhasil, token:', response.data.access_token);
+        // Simpan token untuk verifikasi OTP
+        await AsyncStorage.setItem('token', response.data.access_token);
+        console.log('Token berhasil disimpan di AsyncStorage');
+        
+        Alert.alert(
+          'Sukses', 
+          'Registrasi berhasil', 
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                console.log('User menekan OK, mengarahkan ke halaman OTP');
+                router.replace('/verify-otp');
+              }
+            }
+          ],
+          { cancelable: false }
+        );
       } else {
-        Alert.alert('Error', response.message || 'Registrasi gagal');
+        console.log('Registrasi gagal:', response.message);
+        Alert.alert('Error', response.message || 'Gagal mendaftar');
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      Alert.alert('Error', 'Terjadi kesalahan saat registrasi');
-    } finally {
-      setLoading(false);
+      console.error('Error saat registrasi:', error);
+      Alert.alert('Error', 'Terjadi kesalahan saat mendaftar');
     }
+    setLoading(false);
   };
 
   const handleChange = (field: keyof RegisterInput, value: string) => {
