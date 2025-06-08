@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { BASE_URL } from '../api/auth'
 import CustomNavbar from '../components/CustomNavbar'
+import TipsModal from '../components/TipsModal' // Tambahkan import ini
 import { User } from '../types'
 
 import {
@@ -43,6 +44,10 @@ export default function Home() {
     completed: 0
   })
   const [isLoading, setIsLoading] = useState(true)
+
+  // Tambahkan state untuk modal tips
+  const [modalVisible, setModalVisible] = useState(false)
+  const [selectedTipsType, setSelectedTipsType] = useState<'app-usage' | 'eco-bricks' | 'recycling'>('app-usage')
 
   const [articles] = useState<Article[]>([
     {
@@ -91,6 +96,7 @@ export default function Home() {
             return
           }
 
+<<<<<<< HEAD
           // Get fresh user data from API
           const userResponse = await fetch(`${BASE_URL}/api/profile`, {
             headers: {
@@ -139,6 +145,25 @@ export default function Home() {
           console.error('Error refreshing data:', error)
         } finally {
           setIsLoading(false)
+=======
+  // Tambahkan fungsi untuk membuka modal tips
+  const openTipsModal = (tipsType: 'app-usage' | 'eco-bricks' | 'recycling') => {
+    setSelectedTipsType(tipsType)
+    setModalVisible(true)
+  }
+
+  const loadUserData = async () => {
+    try {
+      const user = await AsyncStorage.getItem('user')
+      if (user) {
+        const parsedUser = JSON.parse(user)
+        setUserData(parsedUser)
+        
+        // Redirect ke halaman collector jika user adalah collector
+        if (parsedUser.role === 'collector') {
+          router.replace('/collector')
+          return
+>>>>>>> faf9fcb13a5dc7cd4eb742a2c20a55ee0d79dc78
         }
       }
 
@@ -174,7 +199,7 @@ export default function Home() {
     )
   }
   
-return (
+  return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header with enhanced background */}
@@ -285,10 +310,13 @@ return (
           </View>
         </View>
 
-        {/* Enhanced Action Buttons */}
+        {/* Enhanced Action Buttons - UPDATE BAGIAN INI */}
         <View style={styles.actionSection}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.actionScroll}>
-            <TouchableOpacity style={[styles.actionButton, styles.firstActionButton]}>
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.firstActionButton]}
+              onPress={() => openTipsModal('app-usage')}
+            >
               <View style={styles.actionIconContainer}>
                 <Image 
                   source={require('../assets/images/icon/handphone.png')} 
@@ -306,7 +334,10 @@ return (
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => openTipsModal('eco-bricks')}
+            >
               <View style={styles.actionIconContainer}>
                 <Image 
                   source={require('../assets/images/icon/handphone.png')} 
@@ -324,7 +355,10 @@ return (
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => openTipsModal('recycling')}
+            >
               <View style={styles.actionIconContainer}>
                 <Image 
                   source={require('../assets/images/icon/handphone.png')} 
@@ -352,7 +386,14 @@ return (
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.articlesScroll}>
             {articles.map((article, index) => (
-              <TouchableOpacity key={article.id} style={[styles.articleCard, index === 0 && styles.firstArticle]}>
+              <TouchableOpacity 
+                key={article.id} 
+                style={[styles.articleCard, index === 0 && styles.firstArticle]}
+                onPress={() => router.push({
+                  pathname: '/artikel',
+                  params: { id: article.id }
+                })}
+              >
                 <View style={styles.articleImageContainer}>
                   <Image source={article.image} style={styles.articleImage} />
                   <View style={styles.articleOverlay} />
@@ -375,11 +416,20 @@ return (
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
+      
       <CustomNavbar />
+      
+      {/* Tambahkan TipsModal di sini */}
+      <TipsModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        tipsType={selectedTipsType}
+      />
     </View>
   )
 }
 
+// Styles tetap sama seperti sebelumnya
 const styles = StyleSheet.create({
   container: {
     flex: 1,
