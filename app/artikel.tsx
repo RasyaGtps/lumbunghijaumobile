@@ -247,19 +247,6 @@ Ide Kerajinan Tangan dari Sampah Kardus:
               )
             })}
           </View>
-
-          {/* Share Section
-          <View style={styles.shareSection}>
-            <Text style={styles.shareTitle}>Bagikan artikel ini</Text>
-            <View style={styles.shareButtons}>
-              <TouchableOpacity style={styles.shareButton}>
-                <Text style={styles.shareButtonText}>Share</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.likeButton}>
-                <Text style={styles.likeButtonText}>♥ Suka</Text>
-              </TouchableOpacity>
-            </View>
-          </View> */}
         </View>
 
         <View style={styles.bottomSpacing} />

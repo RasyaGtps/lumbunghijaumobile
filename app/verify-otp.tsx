@@ -25,15 +25,29 @@ export default function VerifyOTPScreen() {
   useEffect(() => {
     const initOTP = async (): Promise<void> => {
       const storedToken = await AsyncStorage.getItem('token');
+      const needResend = await AsyncStorage.getItem('need_resend_otp');
+      
       if (storedToken) {
         setToken(storedToken);
         try {
-          const response = await sendOTP(storedToken);
-          setCountdown(30);
-          if (response.remaining_resend) {
-            setRemainingResend(response.remaining_resend);
+          // Jika need_resend_otp true, langsung kirim ulang OTP
+          if (needResend === 'true') {
+            console.log('Perlu kirim ulang OTP...');
+            const response = await resendOTP(storedToken);
+            await AsyncStorage.removeItem('need_resend_otp');
+            setCountdown(30);
+            if (response.remaining_resend) {
+              setRemainingResend(response.remaining_resend);
+            }
+          } else {
+            const response = await sendOTP(storedToken);
+            setCountdown(30);
+            if (response.remaining_resend) {
+              setRemainingResend(response.remaining_resend);
+            }
           }
         } catch (error) {
+          console.error('Error saat inisialisasi OTP:', error);
           Alert.alert('Error', 'Gagal mengirim OTP');
         }
       }

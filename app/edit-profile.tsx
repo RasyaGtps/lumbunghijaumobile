@@ -125,7 +125,6 @@ export default function EditProfile() {
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {/* Header Hijau */}
         <View style={{
           backgroundColor: '#27AE60',
           height: 150,
@@ -141,10 +140,9 @@ export default function EditProfile() {
           </Text>
         </View>
 
-        {/* Foto + Change Picture */}
         <View style={{
           alignItems: 'center',
-          marginTop: -50, // supaya overlap ke header hijau
+          marginTop: -50, 
           marginBottom: 20
         }}>
           <TouchableOpacity onPress={pickImage}>
@@ -179,7 +177,6 @@ export default function EditProfile() {
           </Text>
         </View>
 
-        {/* Form */}
         <View style={{ paddingHorizontal: 20 }}>
           <Text style={{ marginBottom: 8 }}>Username</Text>
           <TextInput
@@ -222,12 +219,11 @@ export default function EditProfile() {
             }}
           />
 
-          {/* Password Field (dummy, sama kaya gambar kamu) */}
           <Text style={{ marginBottom: 8 }}>Password</Text>
           <TextInput
             value={'evFTbyVVCd'}
             secureTextEntry
-            editable={false} // password dummy, tidak bisa edit
+            editable={false}
             style={{
               borderWidth: 1,
               borderColor: '#e5e7eb',
@@ -237,7 +233,6 @@ export default function EditProfile() {
             }}
           />
 
-          {/* Tombol Update */}
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={loading}

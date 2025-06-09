@@ -1,50 +1,166 @@
-# Welcome to your Expo app 👋
+# LumbungHijau Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplikasi mobile untuk manajemen sampah yang memungkinkan pengguna untuk melakukan transaksi sampah dan berinteraksi dengan pengepul.
 
-## Get started
+## Persyaratan Sistem
 
-1. Install dependencies
+- Node.js (versi 16 atau lebih tinggi)
+- npm atau yarn
+- Expo CLI
+- Android Studio (untuk pengembangan Android)
+- Xcode (untuk pengembangan iOS, hanya di macOS)
 
-   ```bash
-   npm install
-   ```
+## Teknologi Utama
 
-2. Start the app
+- React Native (v0.79.3)
+- Expo (v53.0.10)
+- TypeScript
+- NativeWind (Tailwind CSS untuk React Native)
 
-   ```bash
-   npx expo start
-   ```
+## Instalasi
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+1. Clone repositori ini
+2. Masuk ke direktori mobile:
 ```bash
-npm run reset-project
+cd mobile
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+3. Install dependencies:
+```bash
+# Menggunakan npm
+npm install
+npm install -g expo-cli
+npx expo install
 
-## Learn more
+# ATAU menggunakan yarn
+yarn install
+yarn global add expo-cli
+npx expo install
 
-To learn more about developing your project with Expo, look at the following resources:
+# Install dev dependencies secara terpisah jika diperlukan
+npm install --save-dev @babel/core @types/react eslint eslint-config-expo typescript
+# atau
+yarn add --dev @babel/core @types/react eslint eslint-config-expo typescript
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Pastikan semua dependencies terinstal dengan benar. Jika ada masalah, coba jalankan:
+```bash
+# Hapus node_modules dan package-lock.json
+rm -rf node_modules package-lock.json
+# Install ulang semua dependencies
+npm install
+npx expo install
+```
 
-## Join the community
+4. Install Expo CLI secara global (jika belum):
+```bash
+npm install -g expo-cli
+```
 
-Join our community of developers creating universal apps.
+## Dependencies Utama
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Core Dependencies
+- `expo`: Framework untuk pengembangan React Native
+- `react`: v19.0.0
+- `react-native`: v0.79.3
+- `expo-router`: Sistem routing untuk Expo
+- `@react-navigation/native`: Navigasi dasar
+- `@react-navigation/bottom-tabs`: Navigasi tab bawah
+
+### UI & Styling
+- `nativewind`: Tailwind CSS untuk React Native
+- `tailwindcss`: Utility-first CSS framework
+- `@expo-google-fonts/poppins`: Font Poppins
+- `expo-blur`: Efek blur
+- `expo-linear-gradient`: Efek gradient
+- `lucide-react-native`: Icon pack
+
+### Storage & State Management
+- `@react-native-async-storage/async-storage`: Penyimpanan lokal
+
+### Media & Images
+- `expo-image`: Komponen image yang dioptimalkan
+- `expo-image-picker`: Pemilih gambar
+
+### System & UI Components
+- `expo-status-bar`: Kontrol status bar
+- `expo-splash-screen`: Splash screen kustom
+- `expo-constants`: Konstanta sistem
+- `expo-system-ui`: Integrasi UI sistem
+- `react-native-safe-area-context`: Penanganan safe area
+- `react-native-screens`: Optimasi navigasi native
+
+### Development Dependencies
+- `typescript`: Dukungan TypeScript
+- `eslint`: Linting
+- `@babel/core`: Babel compiler
+- `@types/react`: Type definitions untuk React
+
+## Menjalankan Aplikasi
+
+1. Memulai server development:
+```bash
+npm start
+# atau
+yarn start
+```
+
+2. Menjalankan di Android:
+```bash
+npm run android
+# atau
+yarn android
+```
+
+3. Menjalankan di iOS:
+```bash
+npm run ios
+# atau
+yarn ios
+```
+
+4. Menjalankan di web:
+```bash
+npm run web
+# atau
+yarn web
+```
+
+## Scripts yang Tersedia
+
+- `npm start`: Memulai server development Expo
+- `npm run android`: Menjalankan aplikasi di Android
+- `npm run ios`: Menjalankan aplikasi di iOS
+- `npm run web`: Menjalankan aplikasi di web browser
+- `npm run lint`: Menjalankan ESLint
+- `npm run reset-project`: Mereset project (membersihkan cache)
+
+## Struktur Folder
+
+- `/app`: Berisi file routing dan halaman utama
+- `/components`: Komponen React yang dapat digunakan kembali
+- `/assets`: Gambar, font, dan aset lainnya
+- `/types`: Type definitions TypeScript
+- `/api`: Konfigurasi dan fungsi API
+- `/contexts`: React Context untuk state management
+- `/hooks`: Custom React hooks
+- `/constants`: Konstanta dan konfigurasi
+
+## Catatan Penting
+
+1. Pastikan semua dependencies terinstal dengan benar sebelum menjalankan aplikasi
+2. Untuk pengembangan iOS, Xcode diperlukan dan hanya tersedia di macOS
+3. Untuk pengembangan Android, pastikan Android Studio dan Android SDK terinstal
+4. Jika mengalami masalah, coba jalankan `npm run reset-project` untuk membersihkan cache
+
+## Troubleshooting
+
+Jika mengalami masalah saat instalasi atau menjalankan aplikasi:
+
+1. Hapus folder `node_modules` dan file `package-lock.json`
+2. Jalankan `npm install` kembali
+3. Bersihkan cache Expo:
+```bash
+expo start -c
+```
+4. Pastikan semua environment variables sudah dikonfigurasi dengan benar
