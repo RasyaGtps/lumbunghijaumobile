@@ -199,8 +199,11 @@ export default function Profile() {
             <Text style={styles.menuText}>Edit Profil</Text>
             <Ionicons name="chevron-forward" size={20} color="#6b7280" />
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
+ 
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => router.push('/withdraw')}
+          >
             <View style={[styles.menuIconContainer, { backgroundColor: '#E3F2FD' }]}>
               <Ionicons name="wallet" size={20} color="#2196F3" />
             </View>

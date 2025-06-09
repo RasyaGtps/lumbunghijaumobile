@@ -4,7 +4,8 @@ import { useEffect, useState, useCallback } from 'react'
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { BASE_URL } from '../api/auth'
 import CustomNavbar from '../components/CustomNavbar'
-import TipsModal from '../components/TipsModal' // Tambahkan import ini
+import TipsModal from '../components/TipsModal'
+import NotificationWithdrawal from '../components/NotificationWithdrawal'
 import { User } from '../types'
 
 import {
@@ -48,6 +49,13 @@ export default function Home() {
   // Tambahkan state untuk modal tips
   const [modalVisible, setModalVisible] = useState(false)
   const [selectedTipsType, setSelectedTipsType] = useState<'app-usage' | 'eco-bricks' | 'recycling'>('app-usage')
+  const [notificationVisible, setNotificationVisible] = useState(false)
+
+  // Tambahkan fungsi openTipsModal
+  const openTipsModal = (type: 'app-usage' | 'eco-bricks' | 'recycling') => {
+    setSelectedTipsType(type)
+    setModalVisible(true)
+  }
 
   const [articles] = useState<Article[]>([
     {
@@ -83,7 +91,6 @@ export default function Home() {
   })
 
   const router = useRouter()
-
   // Refresh data when screen is focused
   useFocusEffect(
     useCallback(() => {
@@ -96,7 +103,6 @@ export default function Home() {
             return
           }
 
-<<<<<<< HEAD
           // Get fresh user data from API
           const userResponse = await fetch(`${BASE_URL}/api/profile`, {
             headers: {
@@ -145,25 +151,6 @@ export default function Home() {
           console.error('Error refreshing data:', error)
         } finally {
           setIsLoading(false)
-=======
-  // Tambahkan fungsi untuk membuka modal tips
-  const openTipsModal = (tipsType: 'app-usage' | 'eco-bricks' | 'recycling') => {
-    setSelectedTipsType(tipsType)
-    setModalVisible(true)
-  }
-
-  const loadUserData = async () => {
-    try {
-      const user = await AsyncStorage.getItem('user')
-      if (user) {
-        const parsedUser = JSON.parse(user)
-        setUserData(parsedUser)
-        
-        // Redirect ke halaman collector jika user adalah collector
-        if (parsedUser.role === 'collector') {
-          router.replace('/collector')
-          return
->>>>>>> faf9fcb13a5dc7cd4eb742a2c20a55ee0d79dc78
         }
       }
 
@@ -240,13 +227,16 @@ export default function Home() {
                 <Text style={styles.userName}>{userData?.name} !!</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.notificationIcon}>
-                <Image 
-                  source={require('../assets/images/icon/notifikasi-icon.png')} 
-                  style={styles.notificationImage} 
-                  resizeMode="contain"
-                />
-                <View style={styles.notificationGlow} />
+            <TouchableOpacity 
+              style={styles.notificationIcon}
+              onPress={() => setNotificationVisible(true)}
+            >
+              <Image 
+                source={require('../assets/images/icon/notifikasi-icon.png')} 
+                style={styles.notificationImage} 
+                resizeMode="contain"
+              />
+              <View style={styles.notificationGlow} />
             </TouchableOpacity>
           </View>
         </View>
@@ -419,11 +409,15 @@ export default function Home() {
       
       <CustomNavbar />
       
-      {/* Tambahkan TipsModal di sini */}
       <TipsModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         tipsType={selectedTipsType}
+      />
+
+      <NotificationWithdrawal
+        visible={notificationVisible}
+        onClose={() => setNotificationVisible(false)}
       />
     </View>
   )
