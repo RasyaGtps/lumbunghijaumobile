@@ -180,7 +180,6 @@ export default function Cart() {
         const reader = new FileReader()
         reader.onloadend = () => {
           if (typeof reader.result === 'string') {
-            // Remove data:image/jpeg;base64, prefix
             resolve(reader.result.split(',')[1])
           }
         }
@@ -207,9 +206,7 @@ export default function Cart() {
       console.log('Submit response:', data)
 
       if (data.status) {
-        // Store transaction ID in AsyncStorage for later use
         await AsyncStorage.setItem('last_transaction_id', String(data.data.id))
-        // Redirect to success page first
         router.replace('/transaction-success')
       } else {
         Alert.alert('Error', data.message || 'Gagal submit transaksi')
@@ -439,7 +436,7 @@ export default function Cart() {
                     <Text style={{ fontSize: 24 }}>📷</Text>
                   </View>
                 )}
-                <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '500' }}>{item.category.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                     <View style={{ 

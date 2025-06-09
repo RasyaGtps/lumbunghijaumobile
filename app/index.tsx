@@ -241,10 +241,8 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Enhanced Balance Card */}
         <View style={styles.section}>
           <View style={styles.balanceCard}>
-            {/* Card background pattern */}
             <View style={styles.cardPattern}>
               <View style={styles.cardCircle1} />
               <View style={styles.cardCircle2} />
@@ -280,7 +278,6 @@ export default function Home() {
               {formatCurrency(userData?.balance || '276900')}
             </Text>
             
-            {/* Enhanced Stats Row */}
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{wasteStats.totalWeight} kg</Text>
@@ -300,7 +297,6 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Enhanced Action Buttons - UPDATE BAGIAN INI */}
         <View style={styles.actionSection}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.actionScroll}>
             <TouchableOpacity 
@@ -368,7 +364,6 @@ export default function Home() {
           </ScrollView>
         </View>
 
-        {/* Enhanced Articles Section */}
         <View style={styles.articlesSection}>
           <View style={styles.articleHeaderContainer}>
             <Text style={styles.sectionTitle}>Artikel</Text>
@@ -423,7 +418,6 @@ export default function Home() {
   )
 }
 
-// Styles tetap sama seperti sebelumnya
 const styles = StyleSheet.create({
   container: {
     flex: 1,
