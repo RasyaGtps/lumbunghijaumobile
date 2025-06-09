@@ -1,11 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useRouter, useFocusEffect } from 'expo-router'
-import { useEffect, useState, useCallback } from 'react'
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { BASE_URL } from '../api/auth'
-import CustomNavbar from '../components/CustomNavbar'
-import TipsModal from '../components/TipsModal' // Tambahkan import ini
-import { User } from '../types'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useEffect, useState, useCallback } from 'react';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BASE_URL } from '../api/auth';
+import CustomNavbar from '../components/CustomNavbar';
+import TipsModal from '../components/TipsModal'; // Tambahkan import ini
+import { User } from '../types';
 
 import {
   Poppins_400Regular,
@@ -14,40 +14,40 @@ import {
   Poppins_700Bold_Italic,
   Poppins_800ExtraBold,
   useFonts,
-} from '@expo-google-fonts/poppins'
+} from '@expo-google-fonts/poppins';
 
 interface ExtendedUser extends Omit<User, 'role'> {
-  avatar_path?: string
-  points?: string
-  role: string
+  avatar_path?: string;
+  points?: string;
+  role: string;
 }
 
 interface WasteStats {
-  totalWeight: number
-  pending: number
-  completed: number
+  totalWeight: number;
+  pending: number;
+  completed: number;
 }
 
 interface Article {
-  id: string
-  title: string
-  image: any
-  category: string
-  readTime: string
+  id: string;
+  title: string;
+  image: any;
+  category: string;
+  readTime: string;
 }
 
 export default function Home() {
-  const [userData, setUserData] = useState<ExtendedUser | null>(null)
+  const [userData, setUserData] = useState<ExtendedUser | null>(null);
   const [wasteStats, setWasteStats] = useState<WasteStats>({
     totalWeight: 0,
     pending: 0,
     completed: 0
-  })
-  const [isLoading, setIsLoading] = useState(true)
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Tambahkan state untuk modal tips
-  const [modalVisible, setModalVisible] = useState(false)
-  const [selectedTipsType, setSelectedTipsType] = useState<'app-usage' | 'eco-bricks' | 'recycling'>('app-usage')
+  // State untuk modal tips
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedTipsType, setSelectedTipsType] = useState<'app-usage' | 'eco-bricks' | 'recycling'>('app-usage');
 
   const [articles] = useState<Article[]>([
     {
@@ -71,7 +71,7 @@ export default function Home() {
       category: 'Tips',
       readTime: '5 menit'
     },
-  ])
+  ]);
 
   // Load font menggunakan useFonts
   const [fontsLoaded] = useFonts({
@@ -80,125 +80,103 @@ export default function Home() {
     Poppins_700Bold,
     Poppins_800ExtraBold,
     Poppins_700Bold_Italic
-  })
+  });
 
-  const router = useRouter()
+  const router = useRouter();
 
-  // Refresh data when screen is focused
-  useFocusEffect(
-    useCallback(() => {
-      const refreshData = async () => {
-        setIsLoading(true)
-        try {
-          const token = await AsyncStorage.getItem('token')
-          if (!token) {
-            router.replace('/login')
-            return
-          }
-
-<<<<<<< HEAD
-          // Get fresh user data from API
-          const userResponse = await fetch(`${BASE_URL}/api/profile`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json'
-            }
-          })
-
-          const userData = await userResponse.json()
-          if (userData.status && userData.data?.user) {
-            console.log('Setting fresh user data:', userData.data.user)
-            setUserData(userData.data.user)
-            await AsyncStorage.setItem('user', JSON.stringify(userData.data.user))
-
-            // Redirect ke halaman collector jika user adalah collector
-            if (userData.data.user.role === 'collector') {
-              router.replace('/collector')
-              return
-            }
-          }
-
-          // Get fresh transaction stats
-          const statsResponse = await fetch(`${BASE_URL}/api/transactions/user`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          })
-
-          const statsData = await statsResponse.json()
-          if (statsData.status) {
-            const transactions = statsData.data
-            const totalWeight = transactions.reduce((sum: number, t: any) => sum + parseFloat(t.total_weight || 0), 0)
-            const completed = transactions.filter((t: any) => t.status === 'verified').length
-            const pending = transactions.filter((t: any) => t.status === 'pending').length
-
-            console.log('Setting fresh stats:', { totalWeight, completed, pending })
-            setWasteStats({
-              totalWeight,
-              pending,
-              completed
-            })
-          }
-        } catch (error) {
-          console.error('Error refreshing data:', error)
-        } finally {
-          setIsLoading(false)
-=======
-  // Tambahkan fungsi untuk membuka modal tips
+  // --- Fungsi untuk membuka modal tips ---
   const openTipsModal = (tipsType: 'app-usage' | 'eco-bricks' | 'recycling') => {
-    setSelectedTipsType(tipsType)
-    setModalVisible(true)
-  }
+    setSelectedTipsType(tipsType);
+    setModalVisible(true);
+  };
 
-  const loadUserData = async () => {
+  // --- Fungsi untuk me-refresh semua data saat layar fokus ---
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const user = await AsyncStorage.getItem('user')
-      if (user) {
-        const parsedUser = JSON.parse(user)
-        setUserData(parsedUser)
-        
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
+
+      // Ambil data pengguna terbaru dari API
+      const userResponse = await fetch(`${BASE_URL}/api/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      const userDataFromApi = await userResponse.json(); // Gunakan nama variabel berbeda untuk menghindari konflik
+      if (userDataFromApi.status && userDataFromApi.data?.user) {
+        console.log('Setting fresh user data:', userDataFromApi.data.user);
+        setUserData(userDataFromApi.data.user);
+        await AsyncStorage.setItem('user', JSON.stringify(userDataFromApi.data.user));
+
         // Redirect ke halaman collector jika user adalah collector
-        if (parsedUser.role === 'collector') {
-          router.replace('/collector')
-          return
->>>>>>> faf9fcb13a5dc7cd4eb742a2c20a55ee0d79dc78
+        if (userDataFromApi.data.user.role === 'collector') {
+          router.replace('/collector');
+          return;
         }
       }
 
-      refreshData()
-    }, [])
-  )
+      // Ambil statistik transaksi terbaru
+      const statsResponse = await fetch(`${BASE_URL}/api/transactions/user`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      const statsData = await statsResponse.json();
+      if (statsData.status) {
+        const transactions = statsData.data;
+        const totalWeight = transactions.reduce((sum: number, t: any) => sum + parseFloat(t.total_weight || 0), 0);
+        const completed = transactions.filter((t: any) => t.status === 'verified').length;
+        const pending = transactions.filter((t: any) => t.status === 'pending').length;
+
+        console.log('Setting fresh stats:', { totalWeight, completed, pending });
+        setWasteStats({
+          totalWeight,
+          pending,
+          completed
+        });
+      }
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [router, setUserData, setWasteStats, setIsLoading]); // Tambahkan semua dependencies yang relevan
+
+  // --- Gunakan useFocusEffect untuk memanggil refreshData saat layar fokus ---
+  useFocusEffect(
+    useCallback(() => {
+      refreshData();
+    }, [refreshData]) // refreshData sekarang adalah dependency karena menggunakan useCallback
+  );
 
   // Show loading indicator while refreshing
-  if (isLoading) {
+  if (isLoading || !fontsLoaded) { // Gabungkan kondisi loading untuk data dan font
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
         <ActivityIndicator size="large" color="#22C55E" />
       </View>
-    )
+    );
   }
 
   const formatCurrency = (amount: string | number) => {
-    const num = typeof amount === 'string' ? parseFloat(amount) : amount
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(num).replace('IDR', 'Rp')
-  }
-
-  // Tampilkan loading kalau font belum siap
-  if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0A529F" />
-      </View>
-    )
-  }
-  
+    }).format(num).replace('IDR', 'Rp');
+  };
+ 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
