@@ -123,7 +123,6 @@ npm install
 ```
 
 2. Setup environment:
-- Copy `.env.example` ke `.env`
 - Sesuaikan `API_URL` dan `BASE_URL`
 
 3. Jalankan aplikasi:
@@ -165,10 +164,6 @@ eas build -p android --profile preview
 2. Cart
    - Item cart di context
    - Sync dengan backend
-
-3. Theme
-   - Dark/light mode di context
-   - Persist di AsyncStorage
 
 ## Error Handling
 
