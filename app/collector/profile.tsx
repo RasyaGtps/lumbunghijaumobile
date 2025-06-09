@@ -40,7 +40,7 @@ export default function CollectorProfile() {
       const token = await AsyncStorage.getItem('token')
       
       // Call logout API
-      const response = await fetch(`${BASE_URL}/auth/logout`, {
+      const response = await fetch(`${BASE_URL}/api/auth/logout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -48,9 +48,14 @@ export default function CollectorProfile() {
         }
       })
 
-      console.log('📤 Logout response:', await response.json())
+      const data = await response.json()
+      console.log('📤 Logout response:', data)
 
-      // Even if the API call fails, we still want to clear local storage and redirect
+      if (!response.ok) {
+        console.warn('Logout API error:', data)
+      }
+
+      // Clear storage and redirect regardless of API response
       await AsyncStorage.multiRemove(['user', 'token'])
       router.replace('/login')
     } catch (error) {

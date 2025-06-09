@@ -1,11 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useFocusEffect, useRouter } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { useRouter, useFocusEffect } from 'expo-router'
+import { useEffect, useState, useCallback } from 'react'
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { BASE_URL } from '../api/auth'
 import CustomNavbar from '../components/CustomNavbar'
-import NotificationWithdrawal from '../components/NotificationWithdrawal'
 import TipsModal from '../components/TipsModal'
+import NotificationWithdrawal from '../components/NotificationWithdrawal'
 import { User } from '../types'
 
 import {
@@ -61,21 +61,21 @@ export default function Home() {
     {
       id: '1',
       title: 'ECO Bricks solusi atasi sampah masa kini',
-      image: require('../assets/images/icon/ecobrick.avif'),
+      image: require('../assets/images/icon/image 2.png'),
       category: 'Tips',
       readTime: '5 menit'
     },
     {
       id: '2',
-      title: 'Ubah sampah kaca menjadi wadah makanan',
-      image: require('../assets/images/icon/kaca.jpg'),
+      title: 'ECO Bricks solusi atasi sampah masa kini',
+      image: require('../assets/images/icon/image 2.png'),
       category: 'Tips',
       readTime: '5 menit'
     },
     {
       id: '3',
-      title: 'Ubah sampah kardus menjadi kerajinan tangan',
-      image: require('../assets/images/icon/kardus.jpg'),
+      title: 'ECO Bricks solusi atasi sampah masa kini',
+      image: require('../assets/images/icon/image 2.png'),
       category: 'Tips',
       readTime: '5 menit'
     },
@@ -326,7 +326,7 @@ export default function Home() {
             >
               <View style={styles.actionIconContainer}>
                 <Image 
-                  source={require('../assets/images/icon/brick.png')} 
+                  source={require('../assets/images/icon/handphone.png')} 
                   style={styles.actionImage} 
                   resizeMode="contain"
                 />
@@ -347,7 +347,7 @@ export default function Home() {
             >
               <View style={styles.actionIconContainer}>
                 <Image 
-                  source={require('../assets/images/icon/recycle.png')} 
+                  source={require('../assets/images/icon/handphone.png')} 
                   style={styles.actionImage} 
                   resizeMode="contain"
                 />
@@ -787,9 +787,9 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     color: 'white',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
-    marginTop: -10,
+    marginTop: -6,
     fontFamily: 'Poppins_600SemiBold'
   },
   actionSubtitle: {

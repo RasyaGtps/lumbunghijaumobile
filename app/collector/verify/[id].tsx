@@ -39,6 +39,23 @@ interface Transaction {
   details: TransactionDetail[]
 }
 
+interface WeightDifference {
+  category: string
+  estimated: string
+  actual: number
+  difference: number
+}
+
+interface VerificationResult {
+  transaction: Transaction
+  weight_differences: WeightDifference[]
+  needs_admin_approval: boolean
+  verifier: {
+    name: string
+    role: string
+  }
+}
+
 export default function VerifyDetail() {
   const { id } = useLocalSearchParams()
   const router = useRouter()
@@ -46,6 +63,7 @@ export default function VerifyDetail() {
   const [isLoading, setIsLoading] = useState(true)
   const [actualWeights, setActualWeights] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null)
 
   useEffect(() => {
     loadTransaction()
@@ -73,7 +91,7 @@ export default function VerifyDetail() {
       if (data.status && data.data) {
         setTransaction(data.data)
         // Pre-fill dengan estimated weight
-        setActualWeights(data.data.details.map(item => parseFloat(item.estimated_weight) || 0))
+        setActualWeights(data.data.details.map((item: TransactionDetail) => parseFloat(item.estimated_weight) || 0))
       }
     } catch (error) {
       console.error('❌ Failed to load transaction:', error)
@@ -103,6 +121,13 @@ export default function VerifyDetail() {
 
   const handleSubmitVerification = async () => {
     try {
+      // Validasi input
+      const invalidWeights = actualWeights.some(weight => isNaN(weight) || weight <= 0)
+      if (invalidWeights) {
+        Alert.alert('Error', 'Semua berat harus berupa angka dan lebih dari 0')
+        return
+      }
+
       setIsSubmitting(true)
       const token = await AsyncStorage.getItem('token')
       if (!token) {
@@ -118,7 +143,10 @@ export default function VerifyDetail() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          actualWeights: actualWeights
+          actualWeights: transaction?.details.map((detail, index) => ({
+            detail_id: detail.id,
+            actual_weight: Number(actualWeights[index])
+          }))
         })
       })
 
@@ -126,6 +154,7 @@ export default function VerifyDetail() {
       console.log('Verification response:', data)
 
       if (data.status) {
+        setVerificationResult(data.data)
         Alert.alert(
           'Sukses',
           'Verifikasi berhasil',
@@ -439,11 +468,14 @@ export default function VerifyDetail() {
                         textAlign: 'center',
                         backgroundColor: 'white'
                       }}
-                      value={actualWeights[index]?.toString() || item.estimated_weight}
+                      value={actualWeights[index]?.toString() || ''}
                       onChangeText={(value) => {
                         const newWeights = [...actualWeights];
-                        newWeights[index] = parseFloat(value) || 0;
-                        setActualWeights(newWeights);
+                        const numValue = value === '' ? 0 : parseFloat(value);
+                        if (!isNaN(numValue)) {
+                          newWeights[index] = numValue;
+                          setActualWeights(newWeights);
+                        }
                       }}
                       keyboardType="decimal-pad"
                       placeholder="0.0"
@@ -514,6 +546,109 @@ export default function VerifyDetail() {
               </Text>
             </View>
           </View>
+
+          {/* Weight Differences */}
+          {verificationResult && (
+            <View style={{
+              backgroundColor: 'white',
+              borderRadius: 12,
+              padding: 16,
+              marginBottom: 16,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 2,
+              borderWidth: 1,
+              borderColor: '#f3f4f6'
+            }}>
+              <Text style={{ 
+                fontSize: 16,
+                fontWeight: '600',
+                color: '#111827',
+                marginBottom: 16
+              }}>
+                Hasil Verifikasi
+              </Text>
+
+              {verificationResult.weight_differences.map((diff, index) => (
+                <View key={index} style={{
+                  borderWidth: 1,
+                  borderColor: '#e5e7eb',
+                  borderRadius: 8,
+                  padding: 12,
+                  marginBottom: 12
+                }}>
+                  <Text style={{ 
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: '#111827',
+                    marginBottom: 8
+                  }}>
+                    {diff.category}
+                  </Text>
+
+                  <View style={{ 
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 4
+                  }}>
+                    <Text style={{ color: '#6b7280' }}>Berat Awal</Text>
+                    <Text style={{ fontWeight: '600', color: '#111827' }}>
+                      {parseFloat(diff.estimated)} kg
+                    </Text>
+                  </View>
+
+                  <View style={{ 
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 4
+                  }}>
+                    <Text style={{ color: '#6b7280' }}>Berat Akhir</Text>
+                    <Text style={{ fontWeight: '600', color: '#059669' }}>
+                      {diff.actual} kg
+                    </Text>
+                  </View>
+
+                  <View style={{ 
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    paddingTop: 8,
+                    borderTopWidth: 1,
+                    borderTopColor: '#f3f4f6'
+                  }}>
+                    <Text style={{ color: '#6b7280' }}>Selisih</Text>
+                    <Text style={{ 
+                      fontWeight: '600', 
+                      color: diff.difference > 0 ? '#059669' : diff.difference < 0 ? '#dc2626' : '#111827'
+                    }}>
+                      {diff.difference > 0 ? '+' : ''}{diff.difference} kg
+                    </Text>
+                  </View>
+                </View>
+              ))}
+
+              {verificationResult.needs_admin_approval && (
+                <View style={{
+                  backgroundColor: '#fff7ed',
+                  padding: 12,
+                  borderRadius: 8,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginTop: 8
+                }}>
+                  <Ionicons name="alert-circle" size={20} color="#c2410c" />
+                  <Text style={{ 
+                    marginLeft: 8,
+                    color: '#c2410c',
+                    flex: 1
+                  }}>
+                    Verifikasi memerlukan persetujuan admin karena ada perbedaan berat yang signifikan
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
 
           {/* Submit Button */}
           <TouchableOpacity
