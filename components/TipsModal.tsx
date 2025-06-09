@@ -142,7 +142,11 @@ const TipsModal: React.FC<TipsModalProps> = ({ visible, onClose, tipsType }) => 
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.backButton}>
-            <Text style={styles.backText}>←</Text>
+            <Image
+              source={require('../assets/images/icon/arrow-left.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Tips-Tips</Text>
           <View style={styles.placeholder} />
@@ -206,9 +210,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backText: {
-    fontSize: 20,
-    color: '#374151',
+  backIcon: {
+    width: 20,
+    height: 20,
   },
   headerTitle: {
     fontSize: 18,
