@@ -9,7 +9,9 @@ import {
   ActivityIndicator,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Modal,
+  FlatList
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
@@ -24,6 +26,19 @@ export default function Withdraw() {
   const [method, setMethod] = useState('')
   const [virtualAccount, setVirtualAccount] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showMethodModal, setShowMethodModal] = useState(false)
+
+  const bankMethods = [
+    'BCA',
+    'Mandiri',
+    'Bank Jatim',
+    'BNI',
+    'BRI',
+    'BTN',
+    'CIMB Niaga',
+    'Permata Bank',
+    'Maybank'
+  ]
 
   const handleWithdraw = async () => {
     const withdrawalAmount = parseFloat(amount.replace(/[.,]/g, ''))
@@ -110,13 +125,10 @@ export default function Withdraw() {
     }
   }
 
-  // Format amount while typing to show thousands separator
   const handleAmountChange = (text: string) => {
-    // Remove non-numeric characters
     const numericValue = text.replace(/[^0-9]/g, '')
     
     if (numericValue) {
-      // Convert to number and format with thousands separator
       const formattedValue = parseInt(numericValue).toLocaleString('id-ID')
       setAmount(formattedValue)
     } else {
@@ -125,160 +137,305 @@ export default function Withdraw() {
   }
 
   return (
-    <KeyboardAvoidingView 
-      style={[styles.container, { paddingTop: insets.top }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity 
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#111827" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tarik Saldo</Text>
-        <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView 
-        style={styles.content} 
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Amount Input */}
-        <Text style={styles.label}>Jumlah Penarikan</Text>
-        <View style={styles.inputContainer}>
-          <Text style={styles.currencyPrefix}>Rp</Text>
-          <TextInput
-            style={styles.input}
-            value={amount}
-            onChangeText={handleAmountChange}
-            placeholder="0"
-            keyboardType="numeric"
-            placeholderTextColor="#9CA3AF"
-          />
-        </View>
-        <Text style={styles.infoText}>Jumlah penarikan minimal: Rp 50.000</Text>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Main Card */}
+        <View style={styles.card}>
+          {/* Amount Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Jumlah Penarikan</Text>
+            <View style={styles.amountContainer}>
+              <Text style={styles.rupiah}>Rp</Text>
+              <TextInput
+                style={styles.amountInput}
+                value={amount}
+                onChangeText={handleAmountChange}
+                placeholder="0"
+                keyboardType="numeric"
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
+            <Text style={styles.helperText}>Minimal penarikan Rp 50.000</Text>
+          </View>
 
-        {/* Method Input */}
-        <Text style={styles.label}>Metode Penarikan</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={method}
-            onChangeText={setMethod}
-            placeholder="Contoh: BCA, GoPay, OVO, dll"
-            placeholderTextColor="#9CA3AF"
-            autoCapitalize="none"
-          />
+          {/* Method Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Metode Penarikan</Text>
+            <TouchableOpacity
+              style={styles.dropdown}
+              onPress={() => setShowMethodModal(true)}
+            >
+              <Text style={[styles.dropdownText, !method && styles.placeholderText]}>
+                {method || 'Pilih metode penarikan'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#6B7280" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Virtual Account Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Nomor Virtual Account</Text>
+            <TextInput
+              style={styles.textInput}
+              value={virtualAccount}
+              onChangeText={text => setVirtualAccount(text.replace(/[^0-9]/g, ''))}
+              placeholder="Masukkan nomor virtual account"
+              keyboardType="numeric"
+              placeholderTextColor="#9CA3AF"
+            />
+            <Text style={styles.helperText}>Minimal 10 digit</Text>
+          </View>
         </View>
 
-        {/* Virtual Account Input */}
-        <Text style={styles.label}>Nomor Virtual Account</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={virtualAccount}
-            onChangeText={text => setVirtualAccount(text.replace(/[^0-9]/g, ''))}
-            placeholder="Masukkan nomor virtual account"
-            keyboardType="numeric"
-            placeholderTextColor="#9CA3AF"
-          />
-        </View>
-        <Text style={styles.infoText}>Minimal 10 digit nomor virtual account</Text>
-
+        {/* Submit Button */}
         <TouchableOpacity
           style={[
-            styles.withdrawButton,
-            (!amount || !method.trim() || !virtualAccount.trim() || virtualAccount.length < 10 || loading || parseFloat(amount.replace(/[.,]/g, '')) < 50000) && styles.withdrawButtonDisabled
+            styles.submitButton,
+            (!amount || !method.trim() || !virtualAccount.trim() || virtualAccount.length < 10 || loading || parseFloat(amount.replace(/[.,]/g, '')) < 50000) && styles.submitButtonDisabled
           ]}
           onPress={handleWithdraw}
           disabled={!amount || !method.trim() || !virtualAccount.trim() || virtualAccount.length < 10 || loading || parseFloat(amount.replace(/[.,]/g, '')) < 50000}
         >
           {loading ? (
-            <ActivityIndicator color="white" />
+            <ActivityIndicator color="white" size="small" />
           ) : (
-            <Text style={styles.withdrawButtonText}>Tarik Saldo</Text>
+            <Text style={styles.submitButtonText}>Tarik Saldo</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
-    </KeyboardAvoidingView>
+
+      {/* Method Selection Modal */}
+      <Modal
+        visible={showMethodModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowMethodModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Pilih Metode Penarikan</Text>
+              <TouchableOpacity
+                onPress={() => setShowMethodModal(false)}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={bankMethods}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.methodItem,
+                    method === item && styles.selectedMethodItem
+                  ]}
+                  onPress={() => {
+                    setMethod(item)
+                    setShowMethodModal(false)
+                  }}
+                >
+                  <Text style={[
+                    styles.methodItemText,
+                    method === item && styles.selectedMethodItemText
+                  ]}>
+                    {item}
+                  </Text>
+                  {method === item && (
+                    <Ionicons name="checkmark" size={20} color="#4CAF50" />
+                  )}
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </View>
+      </Modal>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#4CAF50'
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB'
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#4CAF50'
   },
   backButton: {
-    padding: 8
+    marginRight: 16
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#111827'
+    color: '#FFFFFF'
   },
   content: {
     flex: 1,
-    padding: 24
+    backgroundColor: '#F5F5F5',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingTop: 24
   },
-  label: {
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3
+  },
+  section: {
+    marginBottom: 24
+  },
+  sectionTitle: {
     fontSize: 14,
     fontWeight: '500',
     color: '#374151',
-    marginBottom: 8
+    marginBottom: 12
   },
-  inputContainer: {
+  amountContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginBottom: 8,
-    backgroundColor: '#F9FAFB'
+    paddingHorizontal: 16,
+    paddingVertical: 4
   },
-  currencyPrefix: {
-    fontSize: 16,
-    color: '#111827',
+  rupiah: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#374151',
     marginRight: 8
   },
-  input: {
+  amountInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: '500',
     color: '#111827',
     paddingVertical: 12
   },
-  infoText: {
+  dropdown: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: '#111827',
+    flex: 1
+  },
+  placeholderText: {
+    color: '#9CA3AF'
+  },
+  textInput: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#111827'
+  },
+  helperText: {
     fontSize: 12,
     color: '#6B7280',
-    marginBottom: 24,
-    fontStyle: 'italic'
+    marginTop: 6
   },
-  withdrawButton: {
-    backgroundColor: '#00A74F',
-    paddingVertical: 14,
-    borderRadius: 8,
+  submitButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 12,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 8
+    marginBottom: 24
   },
-  withdrawButtonDisabled: {
+  submitButtonDisabled: {
     backgroundColor: '#9CA3AF'
   },
-  withdrawButtonText: {
-    color: 'white',
+  submitButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600'
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end'
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%'
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB'
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827'
+  },
+  closeButton: {
+    padding: 4
+  },
+  methodItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6'
+  },
+  selectedMethodItem: {
+    backgroundColor: '#F0F9FF'
+  },
+  methodItemText: {
+    fontSize: 16,
+    color: '#374151',
+    flex: 1
+  },
+  selectedMethodItemText: {
+    color: '#4CAF50',
+    fontWeight: '500'
   }
-}); 
+});

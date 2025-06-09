@@ -61,21 +61,21 @@ export default function Home() {
     {
       id: '1',
       title: 'ECO Bricks solusi atasi sampah masa kini',
-      image: require('../assets/images/icon/image 2.png'),
+      image: require('../assets/images/icon/ecobrick.avif'),
       category: 'Tips',
       readTime: '5 menit'
     },
     {
       id: '2',
-      title: 'ECO Bricks solusi atasi sampah masa kini',
-      image: require('../assets/images/icon/image 2.png'),
+      title: 'Ubah sampah kaca menjadi wadah makanan',
+      image: require('../assets/images/icon/kaca.jpg'),
       category: 'Tips',
       readTime: '5 menit'
     },
     {
       id: '3',
-      title: 'ECO Bricks solusi atasi sampah masa kini',
-      image: require('../assets/images/icon/image 2.png'),
+      title: 'Ubah sampah kardus menjadi kerajinan tangan',
+      image: require('../assets/images/icon/kardus.jpg'),
       category: 'Tips',
       readTime: '5 menit'
     },
@@ -326,7 +326,7 @@ export default function Home() {
             >
               <View style={styles.actionIconContainer}>
                 <Image 
-                  source={require('../assets/images/icon/handphone.png')} 
+                  source={require('../assets/images/icon/brick.png')} 
                   style={styles.actionImage} 
                   resizeMode="contain"
                 />
@@ -347,7 +347,7 @@ export default function Home() {
             >
               <View style={styles.actionIconContainer}>
                 <Image 
-                  source={require('../assets/images/icon/handphone.png')} 
+                  source={require('../assets/images/icon/recycle.png')} 
                   style={styles.actionImage} 
                   resizeMode="contain"
                 />
@@ -787,9 +787,9 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    marginTop: -6,
+    marginTop: -10,
     fontFamily: 'Poppins_600SemiBold'
   },
   actionSubtitle: {

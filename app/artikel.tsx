@@ -46,7 +46,7 @@ export default function Artikel() {
     {
       id: '1',
       title: 'ECO Bricks solusi atasi sampah masa kini',
-      image: require('../assets/images/icon/image 2.png'),
+      image: require('../assets/images/icon/ecobrick.avif'),
       author: 'Lumbung Hijau',
       publishDate: '2 bulan yang lalu',
       content: `
@@ -87,96 +87,68 @@ Eco Bricks bukan hanya tentang mendaur ulang sampah, tetapi juga tentang menguba
     },
     {
       id: '2',
-      title: 'Cara Mengelola Sampah Rumah Tangga',
-      image: require('../assets/images/icon/image 2.png'),
+      title: 'Ubah sampah kaca menjadi wadah makanan',
+      image: require('../assets/images/icon/kaca.jpg'),
       author: 'Lumbung Hijau',
       publishDate: '1 bulan yang lalu',
       content: `
-Pengelolaan sampah rumah tangga yang baik adalah kunci untuk menciptakan lingkungan yang bersih dan sehat. Berikut adalah panduan lengkap untuk mengelola sampah di rumah Anda.
+Mengubah sampah kaca menjadi wadah makanan adalah cara kreatif dan berkelanjutan untuk mengurangi limbah dan memberikan nilai baru pada barang bekas. Berikut adalah langkah-langkah dan tips untuk melakukannya dengan aman dan efektif.
 
-Jenis-Jenis Sampah Rumah Tangga
+Mengapa Kaca Ideal untuk Wadah Makanan?
 
-1. Sampah Organik
-Termasuk sisa makanan, kulit buah, daun kering, dan sampah yang mudah terurai secara alami.
+Kaca adalah bahan yang inert, artinya tidak bereaksi dengan makanan atau minuman. Ini menjadikannya pilihan yang aman dan sehat untuk menyimpan berbagai jenis makanan, dari sisa masakan hingga bumbu dapur. Daur ulang kaca juga menghemat energi yang signifikan dibandingkan produksi kaca baru.
 
-2. Sampah Anorganik
-Meliputi plastik, kertas, logam, kaca, dan bahan-bahan yang tidak mudah terurai.
+Langkah-Langkah Mengubah Kaca Bekas Menjadi Wadah Makanan:
 
-3. Sampah Berbahaya
-Seperti baterai bekas, lampu neon, obat-obatan kedaluwarsa, dan produk kimia rumah tangga.
+1.  Pilih dan Bersihkan Kaca:
+     Pilih botol atau toples kaca yang bersih dan tidak retak. Bekas selai, saus, atau minuman adalah pilihan yang baik.
+     Cuci bersih kaca dengan sabun dan air panas untuk menghilangkan sisa makanan atau label. Untuk label yang sulit, rendam dalam air panas dan soda kue.
 
-Langkah-Langkah Pengelolaan Sampah
+2.  Sterilisasi (Penting untuk Keamanan Pangan):
+     Didihkan toples kaca dalam air selama 10-15 menit untuk mensterilkan dan menghilangkan bakteri.
+     Alternatifnya, panaskan toples di oven dengan suhu 100-120°C selama 15-20 menit. Pastikan toples benar-benar kering sebelum digunakan.
 
-1. Pemilahan di Sumber
-Sediakan tempat sampah terpisah untuk setiap jenis sampah. Gunakan kode warna yang berbeda untuk memudahkan identifikasi.
+3.  Penyimpanan yang Tepat:
+     Gunakan wadah kaca yang sudah disiapkan untuk menyimpan bahan makanan kering seperti pasta, beras, kacang-kacangan, atau rempah-rempah.
+     Untuk makanan yang disimpan di kulkas, pastikan wadah tertutup rapat untuk menjaga kesegaran.
 
-2. Komposting untuk Sampah Organik
-Buat kompos dari sampah organik untuk pupuk tanaman. Proses ini mengurangi volume sampah dan menghasilkan pupuk alami.
+4.  Kreativitas dan Personalisasi:
+     Tambahkan label yang menarik atau hias toples dengan cat kaca non-toksik untuk tampilan yang lebih estetis dan terorganisir.
+     Anda bisa juga menggunakan toples kaca untuk membuat makanan yang diawetkan seperti acar atau selai buatan sendiri.
 
-3. Daur Ulang Sampah Anorganik
-Kumpulkan sampah yang bisa didaur ulang seperti botol plastik, kertas, dan kaleng. Jual ke pengepul atau bawa ke bank sampah.
-
-4. Penanganan Sampah Berbahaya
-Kumpulkan sampah berbahaya secara terpisah dan serahkan ke fasilitas pengelolaan yang tepat.
-
-Tips Mengurangi Sampah
-
-1. Gunakan produk yang dapat digunakan berulang
-2. Pilih kemasan yang ramah lingkungan
-3. Kompos sampah organik di rumah
-4. Donasikan barang yang masih layak pakai
-5. Beli sesuai kebutuhan untuk mengurangi pemborosan
-
-Dengan menerapkan sistem pengelolaan sampah yang baik, kita dapat berkontribusi pada lingkungan yang lebih bersih dan sehat untuk generasi mendatang.
-      `
+Dengan mengubah sampah kaca menjadi wadah makanan, Anda tidak hanya berkontribusi pada pengurangan limbah, tetapi juga menciptakan solusi penyimpanan yang praktis dan ramah lingkungan di rumah Anda.
+    `
     },
     {
       id: '3',
-      title: 'Manfaat Daur Ulang untuk Lingkungan',
-      image: require('../assets/images/icon/image 2.png'),
+      title: 'Ubah sampah kardus menjadi kerajinan tangan',
+      image: require('../assets/images/icon/kardus.jpg'),
       author: 'Lumbung Hijau',
       publishDate: '3 minggu yang lalu',
       content: `
-Daur ulang adalah proses mengubah sampah menjadi produk baru yang bermanfaat. Praktik ini memiliki banyak manfaat untuk lingkungan dan kehidupan kita.
+Sampah kardus sering kali menumpuk di rumah, tetapi dengan sedikit kreativitas, Anda bisa mengubahnya menjadi berbagai kerajinan tangan yang unik dan bermanfaat. Ini adalah cara yang menyenangkan untuk mengurangi limbah dan mengekspresikan sisi artistik Anda.
 
-Manfaat Daur Ulang
+Mengapa Kardus Cocok untuk Kerajinan Tangan?
 
-1. Mengurangi Polusi
-Daur ulang membantu mengurangi polusi udara, air, dan tanah yang disebabkan oleh pembuangan sampah sembarangan.
+Kardus adalah bahan yang mudah didapat, murah, dan sangat fleksibel untuk dibentuk. Teksturnya yang kokoh menjadikannya ideal untuk membuat struktur tiga dimensi, sedangkan permukaannya mudah diwarnai, ditempel, atau dipotong.
 
-2. Menghemat Sumber Daya Alam
-Dengan mendaur ulang, kita mengurangi kebutuhan akan bahan baku baru, sehingga melestarikan hutan, tambang, dan sumber daya alam lainnya.
+Ide Kerajinan Tangan dari Sampah Kardus:
 
-3. Mengurangi Emisi Gas Rumah Kaca
-Proses daur ulang umumnya menghasilkan emisi yang lebih rendah dibandingkan produksi dari bahan baku baru.
+1.  Kotak Penyimpanan Dekoratif:
+     Ubah kotak kardus bekas sepatu atau kemasan lainnya menjadi kotak penyimpanan yang menarik untuk pernak-pernik, alat tulis, atau mainan. Hias dengan kertas kado, kain perca, atau cat.
 
-4. Menciptakan Lapangan Kerja
-Industri daur ulang menciptakan banyak lapangan kerja, dari pengumpulan hingga pengolahan sampah.
+2.  Rumah Mainan atau Kastil Miniatur:
+     Kardus besar (misalnya bekas kulkas atau mesin cuci) dapat diubah menjadi rumah boneka, benteng, atau terowongan bermain untuk anak-anak. Libatkan anak-anak dalam proses pembuatannya untuk mengembangkan kreativitas mereka.
 
-Jenis-Jenis Daur Ulang
+3.  Bingkai Foto atau Cermin Unik:
+     Potong kardus menjadi bentuk bingkai dan hias dengan tekstur, warna, atau aksesoris lain. Ini bisa menjadi proyek yang mudah dan personal.
 
-1. Kertas dan Karton
-Dapat didaur ulang menjadi kertas baru, kotak kemasan, dan produk kertas lainnya.
+4.  Organizer Meja atau Laci:
+     Potong-potong kardus menjadi sekat-sekat dan rekatkan untuk membuat organizer kustom di meja kerja atau laci Anda.
 
-2. Plastik
-Botol plastik dapat didaur ulang menjadi pakaian, karpet, atau botol baru.
-
-3. Logam
-Kaleng aluminium dan besi dapat didaur ulang berkali-kali tanpa kehilangan kualitas.
-
-4. Kaca
-Botol dan jar kaca dapat didaur ulang menjadi produk kaca baru.
-
-Cara Memulai Daur Ulang di Rumah
-
-1. Identifikasi jenis sampah yang bisa didaur ulang
-2. Pisahkan sampah sesuai jenisnya
-3. Bersihkan sampah sebelum didaur ulang
-4. Cari tempat pengumpulan sampah daur ulang terdekat
-5. Edukasi keluarga tentang pentingnya daur ulang
-
-Mari bersama-sama menjadikan daur ulang sebagai gaya hidup untuk masa depan yang lebih berkelanjutan!
-      `
+5.  Proyek Seni 3D dan Patung:
+     Gunakan lapisan kardus yang berbeda untuk membuat patung, model arsitektur, atau relief dinding. Kardus dapat dipotong, dilipat, dan direkatkan untuk menciptakan efek dimensi.
+`
     }
   ]
 
@@ -384,7 +356,6 @@ const styles = StyleSheet.create({
   heroImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#e5e7eb',
   },
   heroOverlay: {
     position: 'absolute',
@@ -392,7 +363,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 80,
-    backgroundColor: 'linear-gradient(transparent, rgba(0,0,0,0.3))', // Note: React Native does not support linear-gradient directly in backgroundColor. You might need a package like `expo-linear-gradient` or `react-native-linear-gradient`. This line might cause a warning or error if not handled. For this example, I'll leave it as is, assuming it's a placeholder or handled elsewhere.
   },
   categoryBadge: {
     position: 'absolute',

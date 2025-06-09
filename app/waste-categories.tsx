@@ -317,7 +317,7 @@ export default function WasteCategories() {
         ))}
       </ScrollView>
 
-      <CustomNavbar />
+      {/* <CustomNavbar /> */}
     </View>
   )
 } 

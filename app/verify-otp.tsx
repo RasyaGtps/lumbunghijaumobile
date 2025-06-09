@@ -1,17 +1,21 @@
 import { Poppins_400Regular, Poppins_600SemiBold, useFonts } from '@expo-google-fonts/poppins';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View, NativeSyntheticEvent, TextInputKeyPressEventData } from 'react-native';
 import { resendOTP, sendOTP, verifyOTP } from '../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function VerifyOTPScreen() {
   const router = useRouter();
-  const [otp, setOtp] = useState('');
-  const [token, setToken] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [countdown, setCountdown] = useState(0);
-  const [remainingResend, setRemainingResend] = useState(3);
+  const insets = useSafeAreaInsets();
+  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
+  const [token, setToken] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [countdown, setCountdown] = useState<number>(0);
+  const [remainingResend, setRemainingResend] = useState<number>(3);
+  const inputRefs = useRef<(TextInput | null)[]>([]);
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -19,7 +23,7 @@ export default function VerifyOTPScreen() {
   });
 
   useEffect(() => {
-    const initOTP = async () => {
+    const initOTP = async (): Promise<void> => {
       const storedToken = await AsyncStorage.getItem('token');
       if (storedToken) {
         setToken(storedToken);
@@ -38,28 +42,48 @@ export default function VerifyOTPScreen() {
     initOTP();
   }, []);
 
-  useEffect(() => {
-    let timer: number;
-    if (countdown > 0) {
-      timer = window.setTimeout(() => {
-        setCountdown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => {
-      if (timer) window.clearTimeout(timer);
-    };
-  }, [countdown]);
+useEffect(() => {
+    let timer: number | undefined; // Ubah tipe dari NodeJS.Timeout menjadi number
+    if (countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown((prev: number) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [countdown]);
 
-  const handleVerify = async () => {
-    if (otp.length !== 6) {
+  const handleOtpChange = (value: string, index: number): void => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number): void => {
+    if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerify = async (): Promise<void> => {
+    const otpString = otp.join('');
+    if (otpString.length !== 6) {
       Alert.alert('Error', 'OTP harus 6 digit');
       return;
     }
 
     setLoading(true);
     try {
-      console.log('Mengirim OTP untuk verifikasi:', otp);
-      const response = await verifyOTP(token, otp);
+      console.log('Mengirim OTP untuk verifikasi:', otpString);
+      const response = await verifyOTP(token, otpString);
       console.log('Response verifikasi OTP:', response);
 
       if (response.message === 'Email berhasil diverifikasi') {
@@ -89,7 +113,7 @@ export default function VerifyOTPScreen() {
     setLoading(false);
   };
 
-  const handleResend = async () => {
+  const handleResend = async (): Promise<void> => {
     if (countdown > 0 || remainingResend <= 0) return;
 
     try {
@@ -112,64 +136,114 @@ export default function VerifyOTPScreen() {
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#22C55E" />
+        <ActivityIndicator size="large" color="#4CAF50" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>
-        Verifikasi Email
-      </Text>
-      
-      <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>
-        Masukkan kode OTP yang telah dikirim ke email Anda
-      </Text>
-
-      <TextInput
-        style={[styles.otpInput, { fontFamily: 'Poppins_400Regular' }]}
-        placeholder="Masukkan 6 digit kode OTP"
-        value={otp}
-        onChangeText={setOtp}
-        keyboardType="number-pad"
-        maxLength={6}
-      />
-
-      <TouchableOpacity 
-        style={[
-          styles.verifyButton,
-          loading && styles.disabledButton
-        ]} 
-        onPress={handleVerify}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={[styles.verifyButtonText, { fontFamily: 'Poppins_600SemiBold' }]}>
-            Verifikasi
-          </Text>
-        )}
-      </TouchableOpacity>
-
-      <View style={styles.resendContainer}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={styles.header}>
         <TouchableOpacity 
-          onPress={handleResend}
-          disabled={countdown > 0 || remainingResend <= 0}
+          onPress={() => router.back()}
+          style={styles.backButton}
         >
-          <Text 
-            style={[
-              styles.resendText,
-              { fontFamily: 'Poppins_400Regular' },
-              (countdown > 0 || remainingResend <= 0) && styles.disabledText
-            ]}
-          >
-            Kirim Ulang OTP
-            {countdown > 0 ? ` (${countdown}s)` : ''}
-            {remainingResend > 0 ? ` (${remainingResend}x)` : ''}
-          </Text>
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
+        <Text style={[styles.headerTitle, { fontFamily: 'Poppins_600SemiBold' }]}>
+          Verification code
+        </Text>
+      </View>
+
+      {/* Content */}
+      <View style={styles.content}>
+        <View style={styles.card}>
+          {/* Icon */}
+          <View style={styles.iconContainer}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="mail" size={32} color="#4CAF50" />
+            </View>
+          </View>
+
+          {/* Title & Subtitle */}
+          <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>
+            Verifikasi Email
+          </Text>
+          
+          <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>
+            Masukkan kode 6 digit yang telah dikirim ke email Anda
+          </Text>
+
+          {/* OTP Input */}
+          <View style={styles.otpContainer}>
+            {otp.map((digit, index) => (
+              <TextInput
+                key={index}
+                ref={(ref: TextInput | null) => { // Tambahkan kurung kurawal di sini
+                  inputRefs.current[index] = ref;
+                }} // Tutup kurung kurawal di sini
+                style={[
+                  styles.otpInput,
+                  { fontFamily: 'Poppins_600SemiBold' },
+                  digit && styles.otpInputFilled
+                ]}
+                value={digit}
+                onChangeText={(value: string) => handleOtpChange(value, index)}
+                onKeyPress={(e: NativeSyntheticEvent<TextInputKeyPressEventData>) => handleKeyPress(e, index)}
+                keyboardType="number-pad"
+                maxLength={1}
+                textAlign="center"
+              />
+            ))}
+          </View>
+
+          {/* Verify Button */}
+          <TouchableOpacity 
+            style={[
+              styles.verifyButton,
+              loading && styles.disabledButton
+            ]} 
+            onPress={handleVerify}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={[styles.verifyButtonText, { fontFamily: 'Poppins_600SemiBold' }]}>
+                Verifikasi
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Resend */}
+          <View style={styles.resendContainer}>
+            <Text style={[styles.resendLabel, { fontFamily: 'Poppins_400Regular' }]}>
+              Tidak menerima kode?
+            </Text>
+            <TouchableOpacity 
+              onPress={handleResend}
+              disabled={countdown > 0 || remainingResend <= 0}
+              style={styles.resendButton}
+            >
+              <Text 
+                style={[
+                  styles.resendText,
+                  { fontFamily: 'Poppins_600SemiBold' },
+                  (countdown > 0 || remainingResend <= 0) && styles.disabledText
+                ]}
+              >
+                Kirim Ulang
+                {countdown > 0 ? ` (${countdown}s)` : ''}
+              </Text>
+            </TouchableOpacity>
+            {remainingResend > 0 && countdown === 0 && (
+              <Text style={[styles.remainingText, { fontFamily: 'Poppins_400Regular' }]}>
+                Tersisa {remainingResend}x pengiriman
+              </Text>
+            )}
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -178,50 +252,104 @@ export default function VerifyOTPScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#4CAF50',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#4CAF50',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#4CAF50',
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 18,
+    color: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
     backgroundColor: '#F8FAFC',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 32,
+    paddingHorizontal: 24,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  iconContainer: {
+    marginBottom: 24,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F0F9FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#E8F5E8',
   },
   title: {
     fontSize: 24,
     color: '#1F2937',
-    marginBottom: 16,
+    marginBottom: 8,
     textAlign: 'center',
-    lineHeight: 32,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#6B7280',
     marginBottom: 32,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
+  },
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+    width: '100%',
+    maxWidth: 280,
   },
   otpInput: {
-    width: '100%',
-    maxWidth: 320,
-    height: 48,
-    borderWidth: 1,
+    width: 44,
+    height: 56,
+    borderWidth: 2,
     borderColor: '#E5E7EB',
     borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    backgroundColor: '#FFFFFF',
-    marginBottom: 24,
+    backgroundColor: '#F9FAFB',
+    fontSize: 20,
+    color: '#111827',
+  },
+  otpInputFilled: {
+    borderColor: '#4CAF50',
+    backgroundColor: '#F0F9FF',
   },
   verifyButton: {
-    backgroundColor: '#22C55E',
+    backgroundColor: '#4CAF50',
     paddingVertical: 16,
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 280,
     borderRadius: 12,
-    shadowColor: '#22C55E',
+    shadowColor: '#4CAF50',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -229,6 +357,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
+    marginBottom: 24,
   },
   verifyButtonText: {
     color: '#FFFFFF',
@@ -239,14 +368,28 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   resendContainer: {
-    marginTop: 24,
+    alignItems: 'center',
+  },
+  resendLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  resendButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   resendText: {
-    color: '#22C55E',
+    color: '#4CAF50',
     fontSize: 14,
     textAlign: 'center',
   },
   disabledText: {
     color: '#9CA3AF',
   },
-}); 
+  remainingText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginTop: 4,
+  },
+});
