@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 export const API_URL = 'http://192.168.18.143:8000/api'
 export const BASE_URL = 'http://192.168.18.143:8000'
+=======
+export const API_URL = 'http://192.168.43.100:8000/api'
+export const BASE_URL = 'http://192.168.43.100:8000'
+>>>>>>> 7982721e8da0ac5011cf70c488d5482745348a0d
 
 export interface LoginInput {
   login: string
