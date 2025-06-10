@@ -1,441 +1,447 @@
-import { useState } from 'react'
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  TextInput,
-  Alert,
+import { Poppins_400Regular, Poppins_600SemiBold, useFonts } from '@expo-google-fonts/poppins';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState, useRef } from 'react';
+import {
   ActivityIndicator,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Modal,
-  FlatList
-} from 'react-native'
-import { useRouter } from 'expo-router'
-import { Ionicons } from '@expo/vector-icons'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { BASE_URL } from '../api/auth'
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData
+} from 'react-native';
+import { resendOTP, sendOTP, verifyOTP } from '../api/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function Withdraw() {
-  const router = useRouter()
-  const insets = useSafeAreaInsets()
-  const [amount, setAmount] = useState('')
-  const [method, setMethod] = useState('')
-  const [virtualAccount, setVirtualAccount] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [showMethodModal, setShowMethodModal] = useState(false)
+export default function VerifyOTPScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  // Menggunakan array untuk OTP per digit
+  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
+  const [token, setToken] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [countdown, setCountdown] = useState<number>(0);
+  const [remainingResend, setRemainingResend] = useState<number>(3);
+  // Ref untuk mengelola fokus antar input OTP
+  const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  const bankMethods = [
-    'BCA',
-    'Mandiri',
-    'Bank Jatim',
-    'BNI',
-    'BRI',
-    'BTN',
-    'CIMB Niaga',
-    'Permata Bank',
-    'Maybank'
-  ]
+  // Memuat font Poppins
+  const [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_600SemiBold,
+  });
 
-  const handleWithdraw = async () => {
-    const withdrawalAmount = parseFloat(amount.replace(/[.,]/g, ''))
-    if (!amount || withdrawalAmount <= 0) {
-      Alert.alert('Error', 'Masukkan jumlah penarikan yang valid')
-      return
-    }
+  // Efek untuk inisialisasi OTP saat komponen dimuat
+  useEffect(() => {
+    const initOTP = async (): Promise<void> => {
+      const storedToken = await AsyncStorage.getItem('token');
+      const needResend = await AsyncStorage.getItem('need_resend_otp');
 
-    if (withdrawalAmount < 50000) {
-      Alert.alert('Error', 'Jumlah penarikan minimal adalah Rp 50.000')
-      return
-    }
-
-    if (!method.trim()) {
-      Alert.alert('Error', 'Masukkan metode penarikan')
-      return
-    }
-
-    if (!virtualAccount.trim() || virtualAccount.length < 10) {
-      Alert.alert('Error', 'Masukkan nomor virtual account yang valid (minimal 10 digit)')
-      return
-    }
-
-    try {
-      setLoading(true)
-      const token = await AsyncStorage.getItem('token')
-      
-      if (!token) {
-        router.replace('/login')
-        return
+      if (storedToken) {
+        setToken(storedToken);
+        try {
+          // Jika 'need_resend_otp' true, langsung kirim ulang OTP
+          if (needResend === 'true') {
+            console.log('Perlu kirim ulang OTP...');
+            const response = await resendOTP(storedToken);
+            // Hapus flag setelah pengiriman ulang berhasil
+            await AsyncStorage.removeItem('need_resend_otp');
+            setCountdown(30);
+            if (response.remaining_resend) {
+              setRemainingResend(response.remaining_resend);
+            }
+          } else {
+            // Jika tidak, kirim OTP pertama kali
+            const response = await sendOTP(storedToken);
+            setCountdown(30);
+            if (response.remaining_resend) {
+              setRemainingResend(response.remaining_resend);
+            }
+          }
+        } catch (error) {
+          console.error('Error saat inisialisasi OTP:', error);
+          Alert.alert('Error', 'Gagal mengirim OTP. Silakan coba lagi.');
+        }
+      } else {
+        // Jika tidak ada token, arahkan kembali ke halaman login
+        router.replace('/login');
       }
+    };
 
-      const response = await fetch(`${BASE_URL}/api/withdrawals`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          amount: withdrawalAmount,
-          method: method.trim(),
-          virtual_account: virtualAccount.trim()
-        })
-      })
+    initOTP();
+  }, []); // [] agar hanya berjalan sekali saat mount
 
-      const data = await response.json()
+  // Efek untuk mengelola countdown pengiriman ulang OTP
+  useEffect(() => {
+    let timer: number | undefined; // Tipe `number` untuk ID timer di React Native
+    if (countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown((prev: number) => prev - 1);
+      }, 1000);
+    }
+    // Membersihkan timer saat komponen unmount atau countdown selesai
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [countdown]); // Berjalan setiap kali countdown berubah
 
-      if (data.status === 'success') {
+  // Menangani perubahan teks pada input OTP (per digit)
+  const handleOtpChange = (value: string, index: number): void => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Otomatis fokus ke input berikutnya jika ada nilai
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  // Menangani penekanan tombol keyboard (khusus backspace untuk menghapus)
+  const handleKeyPress = (e: NativeSyntheticEvent<TextInputKeyPressEventData>, index: number): void => {
+    // Jika tombol backspace ditekan dan input saat ini kosong, pindah fokus ke input sebelumnya
+    if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  // Menangani proses verifikasi OTP
+  const handleVerify = async (): Promise<void> => {
+    const otpString = otp.join(''); // Gabungkan array OTP menjadi string
+    if (otpString.length !== 6) {
+      Alert.alert('Error', 'OTP harus 6 digit');
+      return;
+    }
+
+    setLoading(true); // Mulai loading
+    try {
+      console.log('Mengirim OTP untuk verifikasi:', otpString);
+      const response = await verifyOTP(token, otpString);
+      console.log('Response verifikasi OTP:', response);
+
+      if (response.message === 'Email berhasil diverifikasi') {
+        console.log('Verifikasi OTP berhasil');
         Alert.alert(
-          'Berhasil',
-          'Permintaan penarikan berhasil dibuat',
+          'Sukses',
+          'Email berhasil diverifikasi',
           [
             {
               text: 'OK',
               onPress: () => {
-                updateUserBalance(data.data.saldo_tersisa)
-                router.push('/withdrawal-history')
+                console.log('Mengarahkan ke halaman sukses');
+                // Arahkan ke halaman sukses, ganti stack navigasi
+                router.replace('/register-success');
               }
             }
-          ]
-        )
+          ],
+          { cancelable: false }
+        );
       } else {
-        Alert.alert('Error', data.message || 'Terjadi kesalahan')
+        console.log('Verifikasi OTP gagal:', response.message);
+        Alert.alert('Error', response.message || 'Kode OTP tidak valid');
       }
     } catch (error) {
-      console.error('Error:', error)
-      Alert.alert('Error', 'Terjadi kesalahan saat memproses penarikan')
-    } finally {
-      setLoading(false)
+      console.error('Error saat verifikasi:', error);
+      Alert.alert('Error', 'Terjadi kesalahan saat verifikasi');
     }
-  }
+    setLoading(false); // Selesai loading
+  };
 
-  const updateUserBalance = async (newBalance: string) => {
+  // Menangani proses pengiriman ulang OTP
+  const handleResend = async (): Promise<void> => {
+    // Jangan izinkan resend jika countdown masih berjalan atau sisa pengiriman habis
+    if (countdown > 0 || remainingResend <= 0) return;
+
     try {
-      const userStr = await AsyncStorage.getItem('user')
-      if (userStr) {
-        const user = JSON.parse(userStr)
-        user.balance = newBalance
-        await AsyncStorage.setItem('user', JSON.stringify(user))
+      console.log('Meminta pengiriman ulang OTP');
+      const response = await resendOTP(token);
+      console.log('Response resend OTP:', response);
+
+      setCountdown(30); // Mulai countdown baru
+      if (response.remaining_resend !== undefined) {
+        setRemainingResend(response.remaining_resend);
       }
+
+      Alert.alert('Sukses', 'OTP baru telah dikirim ke email Anda');
     } catch (error) {
-      console.error('Error updating balance:', error)
+      console.error('Error saat resend:', error);
+      Alert.alert('Error', 'Gagal mengirim ulang OTP');
     }
+  };
+
+  // Tampilkan loading indicator jika font belum dimuat
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
+    );
   }
 
-  const handleAmountChange = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, '')
-    
-    if (numericValue) {
-      const formattedValue = parseInt(numericValue).toLocaleString('id-ID')
-      setAmount(formattedValue)
-    } else {
-      setAmount('')
-    }
-  }
-
+  // Render UI utama halaman verifikasi OTP
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
+      {/* Header Section */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tarik Saldo</Text>
+        <Text style={[styles.headerTitle, { fontFamily: 'Poppins_600SemiBold' }]}>
+          Verification code
+        </Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Main Card */}
+      {/* Main Content Area */}
+      <View style={styles.content}>
         <View style={styles.card}>
-          {/* Amount Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Jumlah Penarikan</Text>
-            <View style={styles.amountContainer}>
-              <Text style={styles.rupiah}>Rp</Text>
+          {/* Icon Section */}
+          <View style={styles.iconContainer}>
+            <View style={styles.iconCircle}>
+              <Ionicons name="mail" size={32} color="#4CAF50" />
+            </View>
+          </View>
+
+          {/* Title & Subtitle */}
+          <Text style={[styles.title, { fontFamily: 'Poppins_600SemiBold' }]}>
+            Verifikasi Email
+          </Text>
+
+          <Text style={[styles.subtitle, { fontFamily: 'Poppins_400Regular' }]}>
+            Masukkan kode 6 digit yang telah dikirim ke email Anda
+          </Text>
+
+          {/* OTP Input Fields */}
+          <View style={styles.otpContainer}>
+            {otp.map((digit, index) => (
               <TextInput
-                style={styles.amountInput}
-                value={amount}
-                onChangeText={handleAmountChange}
-                placeholder="0"
-                keyboardType="numeric"
-                placeholderTextColor="#9CA3AF"
+                key={index}
+                // Pastikan ref callback tidak mengembalikan nilai
+                ref={(ref: TextInput | null) => { inputRefs.current[index] = ref; }}
+                style={[
+                  styles.otpInput,
+                  { fontFamily: 'Poppins_600SemiBold' },
+                  // Memberi gaya berbeda jika input sudah terisi
+                  digit && styles.otpInputFilled
+                ]}
+                value={digit}
+                onChangeText={(value: string) => handleOtpChange(value, index)}
+                onKeyPress={(e: NativeSyntheticEvent<TextInputKeyPressEventData>) => handleKeyPress(e, index)}
+                keyboardType="number-pad"
+                maxLength={1} // Hanya satu digit per input
+                textAlign="center"
               />
-            </View>
-            <Text style={styles.helperText}>Minimal penarikan Rp 50.000</Text>
+            ))}
           </View>
 
-          {/* Method Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Metode Penarikan</Text>
-            <TouchableOpacity
-              style={styles.dropdown}
-              onPress={() => setShowMethodModal(true)}
-            >
-              <Text style={[styles.dropdownText, !method && styles.placeholderText]}>
-                {method || 'Pilih metode penarikan'}
+          {/* Verify Button */}
+          <TouchableOpacity
+            style={[
+              styles.verifyButton,
+              // Menonaktifkan tombol saat loading
+              loading && styles.disabledButton
+            ]}
+            onPress={handleVerify}
+            disabled={loading}
+          >
+            {loading ? (
+              // Tampilkan ActivityIndicator saat loading
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              // Tampilkan teks tombol saat tidak loading
+              <Text style={[styles.verifyButtonText, { fontFamily: 'Poppins_600SemiBold' }]}>
+                Verifikasi
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#6B7280" />
-            </TouchableOpacity>
-          </View>
+            )}
+          </TouchableOpacity>
 
-          {/* Virtual Account Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Nomor Virtual Account</Text>
-            <TextInput
-              style={styles.textInput}
-              value={virtualAccount}
-              onChangeText={text => setVirtualAccount(text.replace(/[^0-9]/g, ''))}
-              placeholder="Masukkan nomor virtual account"
-              keyboardType="numeric"
-              placeholderTextColor="#9CA3AF"
-            />
-            <Text style={styles.helperText}>Minimal 10 digit</Text>
-          </View>
-        </View>
-
-        {/* Submit Button */}
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            (!amount || !method.trim() || !virtualAccount.trim() || virtualAccount.length < 10 || loading || parseFloat(amount.replace(/[.,]/g, '')) < 50000) && styles.submitButtonDisabled
-          ]}
-          onPress={handleWithdraw}
-          disabled={!amount || !method.trim() || !virtualAccount.trim() || virtualAccount.length < 10 || loading || parseFloat(amount.replace(/[.,]/g, '')) < 50000}
-        >
-          {loading ? (
-            <ActivityIndicator color="white" size="small" />
-          ) : (
-            <Text style={styles.submitButtonText}>Tarik Saldo</Text>
-          )}
-        </TouchableOpacity>
-      </ScrollView>
-
-      {/* Method Selection Modal */}
-      <Modal
-        visible={showMethodModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowMethodModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Pilih Metode Penarikan</Text>
-              <TouchableOpacity
-                onPress={() => setShowMethodModal(false)}
-                style={styles.closeButton}
+          {/* Resend OTP Section */}
+          <View style={styles.resendContainer}>
+            <Text style={[styles.resendLabel, { fontFamily: 'Poppins_400Regular' }]}>
+              Tidak menerima kode?
+            </Text>
+            <TouchableOpacity
+              onPress={handleResend}
+              // Menonaktifkan tombol resend jika countdown berjalan atau sisa pengiriman habis
+              disabled={countdown > 0 || remainingResend <= 0}
+              style={styles.resendButton}
+            >
+              <Text
+                style={[
+                  styles.resendText,
+                  { fontFamily: 'Poppins_600SemiBold' },
+                  // Gaya teks yang berbeda jika tombol dinonaktifkan
+                  (countdown > 0 || remainingResend <= 0) && styles.disabledText
+                ]}
               >
-                <Ionicons name="close" size={24} color="#6B7280" />
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={bankMethods}
-              keyExtractor={(item) => item}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.methodItem,
-                    method === item && styles.selectedMethodItem
-                  ]}
-                  onPress={() => {
-                    setMethod(item)
-                    setShowMethodModal(false)
-                  }}
-                >
-                  <Text style={[
-                    styles.methodItemText,
-                    method === item && styles.selectedMethodItemText
-                  ]}>
-                    {item}
-                  </Text>
-                  {method === item && (
-                    <Ionicons name="checkmark" size={20} color="#4CAF50" />
-                  )}
-                </TouchableOpacity>
-              )}
-              showsVerticalScrollIndicator={false}
-            />
+                Kirim Ulang
+                {/* Tampilkan countdown jika lebih dari 0 */}
+                {countdown > 0 ? ` (${countdown}s)` : ''}
+              </Text>
+            </TouchableOpacity>
+            {/* Tampilkan sisa pengiriman jika ada dan countdown sudah 0 */}
+            {remainingResend > 0 && countdown === 0 && (
+              <Text style={[styles.remainingText, { fontFamily: 'Poppins_400Regular' }]}>
+                Tersisa {remainingResend}x pengiriman
+              </Text>
+            )}
           </View>
         </View>
-      </Modal>
+      </View>
     </View>
-  )
+  );
 }
 
+// Stylesheet untuk komponen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4CAF50'
+    backgroundColor: '#4CAF50', // Background hijau untuk layar
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#4CAF50'
+    backgroundColor: '#4CAF50',
   },
   backButton: {
-    marginRight: 16
+    marginRight: 16,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF'
+    color: '#FFFFFF',
   },
   content: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 20,
-    paddingTop: 24
+    backgroundColor: '#F8FAFC', // Background konten putih
+    borderTopLeftRadius: 24, // Sudut melengkung di atas
+    borderTopRightRadius: 24,
+    paddingTop: 32,
+    paddingHorizontal: 24,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: '#000',
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#000', // Bayangan untuk efek kedalaman
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  section: {
-    marginBottom: 24
+  iconContainer: {
+    marginBottom: 24,
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: 12
-  },
-  amountContainer: {
-    flexDirection: 'row',
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F0F9FF', // Warna latar belakang lingkaran ikon
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 16,
-    paddingVertical: 4
+    borderWidth: 2,
+    borderColor: '#E8F5E8',
   },
-  rupiah: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#374151',
-    marginRight: 8
+  title: {
+    fontSize: 24,
+    color: '#1F2937',
+    marginBottom: 8,
+    textAlign: 'center',
   },
-  amountInput: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#111827',
-    paddingVertical: 12
-  },
-  dropdown: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
-  dropdownText: {
-    fontSize: 16,
-    color: '#111827',
-    flex: 1
-  },
-  placeholderText: {
-    color: '#9CA3AF'
-  },
-  textInput: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#111827'
-  },
-  helperText: {
-    fontSize: 12,
+  subtitle: {
+    fontSize: 15,
     color: '#6B7280',
-    marginTop: 6
+    marginBottom: 32,
+    textAlign: 'center',
+    lineHeight: 22,
   },
-  submitButton: {
-    backgroundColor: '#4CAF50',
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+    width: '100%',
+    maxWidth: 280,
+  },
+  otpInput: {
+    width: 44,
+    height: 56,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
     borderRadius: 12,
+    backgroundColor: '#F9FAFB',
+    fontSize: 20,
+    color: '#111827',
+  },
+  otpInputFilled: {
+    borderColor: '#4CAF50', // Border hijau saat terisi
+    backgroundColor: '#F0F9FF',
+  },
+  verifyButton: {
+    backgroundColor: '#4CAF50',
     paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 24
+    width: '100%',
+    maxWidth: 280,
+    borderRadius: 12,
+    shadowColor: '#4CAF50',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+    marginBottom: 24,
   },
-  submitButtonDisabled: {
-    backgroundColor: '#9CA3AF'
-  },
-  submitButtonText: {
+  verifyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600'
+    textAlign: 'center',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end'
+  disabledButton: {
+    opacity: 0.7, // Efek buram saat tombol dinonaktifkan
   },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '70%'
-  },
-  modalHeader: {
-    flexDirection: 'row',
+  resendContainer: {
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB'
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827'
+  resendLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 8,
   },
-  closeButton: {
-    padding: 4
+  resendButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
-  methodItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6'
-  },
-  selectedMethodItem: {
-    backgroundColor: '#F0F9FF'
-  },
-  methodItemText: {
-    fontSize: 16,
-    color: '#374151',
-    flex: 1
-  },
-  selectedMethodItemText: {
+  resendText: {
     color: '#4CAF50',
-    fontWeight: '500'
-  }
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  disabledText: {
+    color: '#9CA3AF',
+  },
+  remainingText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginTop: 4,
+  },
 });
