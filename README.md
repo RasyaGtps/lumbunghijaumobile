@@ -32,6 +32,21 @@ mobile/
 └── assets/             # Gambar, font, dll
 ```
 
+## Lokasi File Konfigurasi API 
+
+```
+ api/
+   └──  auth.ts
+```
+
+## Konfigurasi API
+
+API menggunakan base URL berikut:
+```typescript
+API_URL = 'http://ip address/api'
+BASE_URL = 'http://ip address'
+```
+
 ## Konfigurasi API
 
 API menggunakan base URL berikut:
