@@ -43,8 +43,8 @@ mobile/
 
 API menggunakan base URL berikut:
 ```typescript
-API_URL = 'http://ip/api'
-BASE_URL = 'http://ip'
+API_URL = 'http://ip address/api'
+BASE_URL = 'http://ip address'
 ```
 
 ## Fitur Aplikasi
