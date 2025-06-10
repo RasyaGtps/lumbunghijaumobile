@@ -32,6 +32,21 @@ mobile/
 └── assets/             # Gambar, font, dll
 ```
 
+## Konfigurasi API
+
+API menggunakan base URL berikut:
+```typescript
+API_URL = 'http://ip/api'
+BASE_URL = 'http://ip'
+```
+
+## Lokasi File Konfigurasi API 
+
+```
+ api/
+   └──  auth.ts
+```
+
 ## Fitur Aplikasi
 
 ### User Biasa
@@ -115,6 +130,7 @@ mobile/
 }
 ```
 
+
 ## Setup Development
 
 1. Install dependencies:
@@ -123,7 +139,6 @@ npm install
 ```
 
 2. Setup environment:
-- Copy `.env.example` ke `.env`
 - Sesuaikan `API_URL` dan `BASE_URL`
 
 3. Jalankan aplikasi:
@@ -166,10 +181,6 @@ eas build -p android --profile preview
    - Item cart di context
    - Sync dengan backend
 
-3. Theme
-   - Dark/light mode di context
-   - Persist di AsyncStorage
-
 ## Error Handling
 
 1. API Errors
@@ -183,3 +194,4 @@ eas build -p android --profile preview
 3. Network
    - Retry mechanism
    - Offline indicator
+
