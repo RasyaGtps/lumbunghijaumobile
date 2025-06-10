@@ -6,14 +6,6 @@ Aplikasi mobile Lumbung Hijau menggunakan React Native dengan Expo.
 
 ```
 mobile/
-├── app/                    # Halaman-halaman aplikasi# Lumbung Hijau - Mobile App
-
-Aplikasi mobile Lumbung Hijau menggunakan React Native dengan Expo.
-
-## Struktur Folder
-
-```
-mobile/
 ├── app/                    # Halaman-halaman aplikasi
 │   ├── auth/              # Halaman autentikasi
 │   ├── collector/         # Halaman khusus collector
