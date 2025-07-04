@@ -112,6 +112,10 @@ export default function Login() {
         // Simpan token
         await AsyncStorage.setItem('token', response.data.token);
         
+        // Simpan data user lengkap termasuk email_verified
+        await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+        console.log('Setting fresh user data:', response.data.user);
+        
         // Cek status verifikasi email
         if (!response.data.user.email_verified) {
           console.log('Email belum terverifikasi, mengarahkan ke halaman OTP');

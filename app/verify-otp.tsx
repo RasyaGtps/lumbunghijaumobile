@@ -127,6 +127,15 @@ export default function VerifyOTPScreen() {
 
       if (response.message === 'Email berhasil diverifikasi') {
         console.log('Verifikasi OTP berhasil');
+        
+        // Update user data di AsyncStorage dengan email_verified = true
+        const storedUser = await AsyncStorage.getItem('user');
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          userData.email_verified = true;
+          await AsyncStorage.setItem('user', JSON.stringify(userData));
+        }
+        
         Alert.alert(
           'Sukses',
           'Email berhasil diverifikasi',

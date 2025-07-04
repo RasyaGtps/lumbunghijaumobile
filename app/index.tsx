@@ -113,12 +113,24 @@ export default function Home() {
 
           const userData = await userResponse.json()
           if (userData.status && userData.data?.user) {
-            console.log('Setting fresh user data:', userData.data.user)
-            setUserData(userData.data.user)
-            await AsyncStorage.setItem('user', JSON.stringify(userData.data.user))
+            // Ambil data user yang ada di storage
+            const existingUserData = await AsyncStorage.getItem('user')
+            const existingUser = existingUserData ? JSON.parse(existingUserData) : {}
+            
+            // Gabungkan data baru dengan data lama, prioritaskan data baru
+            const mergedUser = {
+              ...existingUser,
+              ...userData.data.user,
+              // Pertahankan email_verified dari data lama jika tidak ada di data baru
+              email_verified: userData.data.user.email_verified ?? existingUser.email_verified
+            }
+            
+            console.log('Setting fresh user data:', mergedUser)
+            setUserData(mergedUser)
+            await AsyncStorage.setItem('user', JSON.stringify(mergedUser))
 
             // Redirect ke halaman collector jika user adalah collector
-            if (userData.data.user.role === 'collector') {
+            if (mergedUser.role === 'collector') {
               router.replace('/collector')
               return
             }

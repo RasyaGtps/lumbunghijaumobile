@@ -1,10 +1,13 @@
-// components/CustomSplashScreen.js
 import React from 'react'
-import { View, Image, StyleSheet, Dimensions, Text } from 'react-native'
+import { View, Image, StyleSheet, Dimensions, Text, ActivityIndicator } from 'react-native'
 
 const { width, height } = Dimensions.get('window')
 
-export default function CustomSplashScreen() {
+interface CustomSplashScreenProps {
+  error?: string | null
+}
+
+export default function CustomSplashScreen({ error }: CustomSplashScreenProps) {
   return (
     <View style={styles.container}>
       <Image
@@ -13,7 +16,14 @@ export default function CustomSplashScreen() {
         resizeMode="contain"
         onError={() => console.log('Error loading logo')}
       />
-      <Text style={styles.text}>Loading...</Text>
+      {error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : (
+        <>
+          <ActivityIndicator size="large" color="#4CAF50" style={styles.spinner} />
+          <Text style={styles.text}>Loading...</Text>
+        </>
+      )}
     </View>
   )
 }
@@ -23,11 +33,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff', 
+    backgroundColor: '#ffffff',
   },
   logo: {
-    width: width * 0.6, 
-    height: height * 0.3, 
+    width: width * 0.6,
+    height: height * 0.3,
     maxWidth: 200,
     maxHeight: 200,
     marginBottom: 20,
@@ -35,6 +45,16 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     color: '#666',
+    marginTop: 10,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#f44336',
+    marginTop: 20,
+    textAlign: 'center',
+    paddingHorizontal: 30,
+  },
+  spinner: {
     marginTop: 20,
   }
 })
