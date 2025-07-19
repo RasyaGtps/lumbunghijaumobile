@@ -20,6 +20,9 @@
       "edgeToEdgeEnabled": true,
       "package": "com.rayyywho.mobile"
     },
+    "splash": {
+      "backgroundColor": "#ffffff"
+    },
     "web": {
       "bundler": "metro",
       "output": "static",
